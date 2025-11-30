@@ -219,8 +219,9 @@ footer {
 }
 
 .footer {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
+    display: flex;
+    justify-content: space-between;
+    
 }
 
 .footer-logo, .footer-logo p{
@@ -239,12 +240,31 @@ footer {
     margin-left: 50px;
 }
 
-.footer-redes-sociales ul {
+.footer-redes-sociales{
+    display: flex;
+    align-items: center;
+}
 
+.footer-redes-sociales ul {
+    display: flex;
+    flex-direction: row;
+    margin-right: 80px;
 }
 
 .footer-redes-sociales ul li{
+    display: flex;
     list-style: none;
+    align-items: center;
+    gap: 10px;
+    margin-left: 150px;
+    flex-direction: row;
+}
+
+.icon-rs {
+    width: 40px;
+    padding: 5px;
+    flex-shrink: 0; /*para evitar que el icono se encoja*/
+    flex-direction: row;
 }
 
 .copy p {
