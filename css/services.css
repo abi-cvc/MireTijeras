@@ -1,0 +1,53 @@
+.tabla-servicios {
+    align-content: center;
+    justify-content: center;
+    margin: 0 150px;
+}
+
+h2 {
+    text-align: center;
+    background-color: var(--color_4);
+    margin: auto;
+    padding: 15px;
+    margin-bottom: 10px;
+    color: var(--color_3);
+    text-transform: uppercase;
+    border-radius: 15px;
+
+}
+
+.precios-servicios tr, th, td {
+    width: 50%;
+    text-align: justify center;
+    table-layout: fixed;
+    border: 3px solid var(--color_3);
+    margin-bottom: 40px;
+    padding: 10px;
+    border-radius: 15px;
+}
+
+.precios-servicios th {
+    background-color: var(--color_4);
+    color: var(--color_3);
+}
+
+.servicios-images {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin: 40px 0px;
+}
+
+.servicios-images img {
+    width: 250px;
+    border-radius: 250px;
+}
+
+.precio {
+    text-align: center;
+}
+
+.img-medidas-cabello {
+    margin: 20px auto;
+    max-width: 100%;
+}
