@@ -16,8 +16,17 @@ h2 {
 
 }
 
+.precios-servicios {
+    margin: auto;
+    border-collapse: collapse;
+    margin-bottom: 40px;
+}
+
+.precios-servicios th {
+    width: 10%;
+}
+
 .precios-servicios tr, th, td {
-    width: 50%;
     text-align: justify center;
     table-layout: fixed;
     border: 3px solid var(--color_3);
