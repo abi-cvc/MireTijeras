@@ -24,6 +24,8 @@ h2 {
 
 .precios-servicios th {
     width: 10%;
+    background-color: var(--color_4);
+    color: var(--color_3);
 }
 
 .precios-servicios tr, th, td {
@@ -33,11 +35,6 @@ h2 {
     margin-bottom: 40px;
     padding: 10px;
     border-radius: 15px;
-}
-
-.precios-servicios th {
-    background-color: var(--color_4);
-    color: var(--color_3);
 }
 
 .servicios-images {
