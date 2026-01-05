@@ -35,8 +35,45 @@
     </header>
 
     <main>
-        <h1>Agendar Cita</h1>
+        <h1>Agendar Servicio</h1>
+        <p>Completa el formulario para reservar tu cita</p>
 
+        <form>
+            <!--Datos del cliente-->
+            <div class="form">
+                <label for="nombre">Nombre Completo <span class="obligatorio">*</span></label>
+                <input type="text" id="nombre" name="nombre" required>
+            </div>
+
+            <div class="form">
+                <label for="correo">Correo Electrónico <span class="obligatorio">*</span></label>
+                <input type="email" id="correo" name="correo" required>
+            </div>
+
+            <div class="form">
+                <label for="telefono">Teléfono <span class="obligatorio">*</span></label>
+                <input type="tel" id="telefono" name="telefono" required>
+            </div>
+
+            <!--Listado de servicios para elegir-->
+
+            <div class="form">
+                <label for="servicio">Tipo de Servicio <span class="obligatorio">*</span></label>
+                <select id="servicio" name="servicio" required onchange="actualizarEspecificacion()">
+                    <option value="">-- Selecciona un servicio --</option>
+                    <option value="cortes">Cortes</option>
+                    <option value="tintes">Tintes</option>
+                    <option value="alisados">Alisados</option>
+                </select>
+            </div>
+
+            
+            <div class="form">
+                <label for="especificación">Especificación <span class="obligatorio">*</span></label>
+                <select name="especificacion" id="especificacion" required disabled></select>
+                    <option value="">-- Primero selecciona un servicio --</option>
+            </div>
+        </form>
 
     </main>
 
