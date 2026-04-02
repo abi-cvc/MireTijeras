@@ -7,7 +7,13 @@ const authService = new AuthService();
 const cors = require('cors');
 
 app.use(express.json());
-app.use(cors()); // Permitir CORS para desarrollo local
+app.use(cors({
+    origin: [
+        'http://localhost:8000',
+        'https://miretijeras.onrender.com'
+    ],
+    credentials: true
+}));
 
 // Ruta para login de administrador
 app.post('/api/admin/login', async (req, res) => {
