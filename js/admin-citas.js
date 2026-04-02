@@ -18,35 +18,60 @@ let citas = [
 function renderCalendar() {
     const cal = document.getElementById('calendar-admin');
     cal.innerHTML = '';
-    // Mostrar calendario completo (mes actual)
-    // Aquí puedes integrar un calendario real, por ahora solo lista de días/franjas/citas
-    let dias = {};
+    // Construir eventos para FullCalendar
+    const events = [];
     franjas.forEach(f => {
-        if (!dias[f.dia]) dias[f.dia] = { franjas: [], citas: [] };
-        dias[f.dia].franjas.push(f);
+        events.push({
+            title: 'Disponible',
+            start: f.dia + 'T' + f.inicio,
+            end: f.dia + 'T' + f.fin,
+            color: '#1a9c5e',
+            display: 'background',
+            extendedProps: { tipo: 'franja' }
+        });
     });
     citas.forEach(c => {
-        if (!dias[c.dia]) dias[c.dia] = { franjas: [], citas: [] };
-        dias[c.dia].citas.push(c);
-    });
-    Object.keys(dias).sort().forEach(dia => {
-        const dayDiv = document.createElement('div');
-        dayDiv.className = 'calendar-day';
-        dayDiv.innerHTML = `<strong>${dia}</strong>`;
-        dias[dia].franjas.forEach(f => {
-            const franjaDiv = document.createElement('div');
-            franjaDiv.className = 'calendar-franja';
-            franjaDiv.innerHTML = `Disponible: ${f.inicio} - ${f.fin}`;
-            dayDiv.appendChild(franjaDiv);
+        events.push({
+            title: `Agendado: ${c.cliente} / ${c.servicio}`,
+            start: c.dia + 'T' + c.hora,
+            color: '#e10a64',
+            extendedProps: { tipo: 'cita' }
         });
-        dias[dia].citas.forEach(c => {
-            const citaDiv = document.createElement('div');
-            citaDiv.className = 'calendar-cita';
-            citaDiv.innerHTML = `Agendado: ${c.cliente} / ${c.servicio} (${c.hora})`;
-            dayDiv.appendChild(citaDiv);
-        });
-        cal.appendChild(dayDiv);
     });
+    const calendar = new FullCalendar.Calendar(cal, {
+        initialView: 'dayGridMonth',
+        locale: 'es',
+        height: 500,
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        events: events,
+        eventDidMount: function(info) {
+            if (info.event.extendedProps.tipo === 'franja') {
+                info.el.style.opacity = '0.25';
+            }
+        },
+        eventClick: function(info) {
+            if (info.event.extendedProps.tipo === 'cita') {
+                alert(info.event.title);
+            }
+        },
+        dayHeaderFormat: { weekday: 'long' },
+        dayPopoverFormat: { day: '2-digit', month: 'long', year: 'numeric' },
+        eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
+        titleFormat: { year: 'numeric', month: 'long' },
+        slotLabelFormat: [
+            { hour: '2-digit', minute: '2-digit', hour12: false }
+        ],
+        views: {
+            dayGridMonth: { dayMaxEventRows: 4, titleFormat: { year: 'numeric', month: 'long' } },
+            timeGridWeek: { titleFormat: { day: '2-digit', month: 'long', year: 'numeric' } },
+            timeGridDay: { titleFormat: { day: '2-digit', month: 'long', year: 'numeric' } }
+        }
+    });
+    calendar.render();
 }
 
 function renderFranjas() {
