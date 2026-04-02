@@ -1,0 +1,117 @@
+/* Estilos para el buzón de sugerencias y animación de carta */
+.suggestion-form-section {
+    margin: 40px auto 30px auto;
+    max-width: 600px;
+    background: var(--color_4);
+    border: 2px solid var(--color_3);
+    border-radius: 18px;
+    padding: 30px 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    position: relative;
+}
+#suggestion-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+#suggestion-form textarea {
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1.5px solid var(--color_3);
+    font-size: 1rem;
+}
+#suggestion-form button[type="submit"] {
+    background: var(--color_3);
+    color: var(--color_1);
+    border: none;
+    border-radius: 8px;
+    padding: 12px 0;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.2s;
+}
+#suggestion-form button[type="submit"]:hover {
+    background: var(--color_2);
+}
+#suggestion-message {
+    margin-top: 18px;
+    font-size: 1.1rem;
+    text-align: center;
+}
+.envelope-animation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 30px;
+    animation: fadeIn 0.5s;
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.envelope {
+    position: relative;
+    width: 120px;
+    height: 80px;
+    margin-bottom: 10px;
+}
+.envelope-flap {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 120px;
+    height: 40px;
+    background: var(--color_3);
+    border-top-left-radius: 12px 24px;
+    border-top-right-radius: 12px 24px;
+    z-index: 3;
+    transform-origin: top center;
+    animation: flapClose 1.2s forwards;
+}
+@keyframes flapClose {
+    0% { transform: rotateX(0deg); }
+    60% { transform: rotateX(-80deg); }
+    100% { transform: rotateX(-90deg); }
+}
+.envelope-body {
+    position: absolute;
+    top: 20px;
+    left: 0;
+    width: 120px;
+    height: 60px;
+    background: var(--color_1);
+    border: 2px solid var(--color_3);
+    border-bottom-left-radius: 12px 24px;
+    border-bottom-right-radius: 12px 24px;
+    z-index: 1;
+}
+.envelope-letter {
+    position: absolute;
+    top: 10px;
+    left: 20px;
+    width: 80px;
+    height: 50px;
+    background: var(--color_4);
+    border: 1.5px solid var(--color_3);
+    border-radius: 6px;
+    z-index: 2;
+    animation: letterSlide 1.2s forwards;
+}
+@keyframes letterSlide {
+    0% { top: 60px; opacity: 0; }
+    60% { top: 10px; opacity: 1; }
+    100% { top: 10px; opacity: 1; }
+}
+.envelope-text {
+    color: var(--color_3);
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-top: 8px;
+}
