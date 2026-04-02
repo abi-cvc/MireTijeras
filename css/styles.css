@@ -292,5 +292,36 @@ footer {
     color: var(--color_2);
 }
 
+.whatsapp-float {
+    position: fixed;
+    right: 32px;
+    bottom: 80px;
+    z-index: 1000;
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    border-radius: 50%;
+    transition: transform 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    width: 70px;
+    height: 70px;
+}
+
+.whatsapp-float svg {
+    width: 48px;
+    height: 48px;
+    display: block;
+}
+
+.whatsapp-float:hover {
+    transform: scale(1.08);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.22);
+}
+
 
 
