@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Convenios | MireTijeras</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/admin-convenios.css">
+</head>
+<body>
+    <header class="admin-header"></header>
+    <div class="admin-title-bar">
+        <button id="back-dashboard" class="back-rect-arrow" title="Volver al panel" aria-label="Volver al panel">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15 19l-7-7 7-7" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
+        <h1 class="admin-title">Gestión de Convenios</h1>
+    </div>
+    <main class="convenios-admin-main">
+        <section class="convenios-list-section">
+            <h2>Solicitudes de Convenio</h2>
+            <div class="convenios-filter-bar">
+                <label for="filtro-estado">Filtrar por estado:</label>
+                <select id="filtro-estado">
+                    <option value="todos">Todos</option>
+                    <option value="por revisar">Por revisar</option>
+                    <option value="revisando">Revisando</option>
+                    <option value="finalizado">Finalizado</option>
+                </select>
+                <label for="filtro-aprobado">Aprobación:</label>
+                <select id="filtro-aprobado">
+                    <option value="todos">Todos</option>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="aprobado">Aprobado</option>
+                    <option value="rechazado">Rechazado</option>
+                </select>
+            </div>
+            <div id="convenios-list" class="convenios-list">
+                <!-- Aquí se cargarán las solicitudes de convenio -->
+            </div>
+        </section>
+    </main>
+    <script src="../js/admin-convenios.js"></script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Sugerencias | MireTijeras</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/admin-suggestions.css">
+</head>
+<body>
+    <header class="admin-header"></header>
+    <div class="admin-title-bar">
+        <button id="back-dashboard" class="back-rect-arrow" title="Volver al panel" aria-label="Volver al panel">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15 19l-7-7 7-7" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
+        <h1 class="admin-title">Gestión de Sugerencias</h1>
+    </div>
+    <main class="suggestions-admin-main">
+        <section class="suggestions-list-section">
+            <div class="suggestions-filter-bar">
+                <label for="filter-estado">Filtrar por estado:</label>
+                <select id="filter-estado">
+                    <option value="todos">Todos</option>
+                    <option value="por revisar">Por revisar</option>
+                    <option value="revisando">Revisando</option>
+                    <option value="finalizado">Finalizado</option>
+                </select>
+            </div>
+            <div id="suggestions-list" class="suggestions-list">
+                <!-- Aquí se cargarán las sugerencias -->
+            </div>
+        </section>
+    </main>
+    <script src="../js/admin-suggestions.js"></script>
+</body>
+</html>

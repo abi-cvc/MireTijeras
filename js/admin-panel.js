@@ -6,15 +6,17 @@ document.getElementById('logout-btn').addEventListener('click', function() {
 });
 
 document.getElementById('card-citas').addEventListener('click', function() {
-    // Aquí luego se mostrará la sección de citas
-    alert('Aquí se mostrarán y gestionarán las citas.');
+    window.location.href = 'admin-citas.html';
 });
+
 document.getElementById('card-reseñas').addEventListener('click', function() {
-    alert('Aquí se gestionarán las reseñas.');
+    window.location.href = 'admin-reviews.html';
 });
+
 document.getElementById('card-sugerencias').addEventListener('click', function() {
-    alert('Aquí se gestionarán las sugerencias.');
+    window.location.href = 'admin-suggestions.html';
 });
+
 document.getElementById('card-convenios').addEventListener('click', function() {
-    alert('Aquí se gestionarán los convenios.');
+    window.location.href = 'admin-convenios.html';
 });

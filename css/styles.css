@@ -1,3 +1,51 @@
+/* Barra de logout fuera del degradado */
+.logout-bar {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 18px 40px 0 40px;
+    background: none;
+}
+.admin-header {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    background: var(--gradiente_1);
+    color: var(--color_1);
+    min-height: 80px;
+    padding: 0 40px 0 40px;
+}
+.admin-title-bar {
+    display: flex;
+    align-items: center;
+    position: relative;
+    height: 80px;
+    margin: 0 0 0 0;
+}
+.admin-title-bar .back-arrow {
+    position: absolute;
+    left: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+}
+.admin-title {
+    font-size: 2.2rem;
+    font-family: 'Dancing Script', cursive;
+    margin: 0 auto;
+    color: var(--color_3);
+    position: absolute;
+    left: 0; right: 0;
+    text-align: center;
+    pointer-events: none;
+}
+.admin-title {
+    font-size: 2.2rem;
+    font-family: 'Dancing Script', cursive;
+    margin: 0;
+    color: var(--color_3);
+}
 :root {
     --color_1: #ffffff;
     --color_2: #000000;
@@ -321,6 +369,53 @@ footer {
 .whatsapp-float:hover {
     transform: scale(1.08);
     box-shadow: 0 4px 16px rgba(0,0,0,0.22);
+}
+
+
+.back-rect-arrow {
+    background: var(--color_3);
+    border: none;
+    border-radius: 6px;
+    padding: 6px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-right: 18px;
+    height: 40px;
+    margin-left: 2rem;
+}
+
+.back-rect-arrow svg {
+    display: block;
+    width: 28px;
+    height: 28px;
+    stroke: #fff;
+    background: none;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+}
+.back-rect-arrow:hover {
+    background: var(--color_2);
+}
+/* Botón rectangular de regreso para reseñas */
+.back-rect {
+    background: var(--color_3);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 24px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-right: 18px;
+}
+.back-rect:hover {
+    background: var(--color_2);
+    color: var(--color_1);
 }
 
 

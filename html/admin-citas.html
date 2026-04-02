@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Citas | MireTijeras</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/admin-citas.css">
+</head>
+<body>
+    <header class="admin-header"></header>
+    <div class="admin-title-bar">
+        <button id="back-dashboard" class="back-rect-arrow" title="Volver al panel" aria-label="Volver al panel">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15 19l-7-7 7-7" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
+        <h1 class="admin-title">Gestión de Citas</h1>
+    </div>
+    <main class="citas-admin-main">
+        <section class="citas-calendar-section">
+            <h2>Calendario de Citas</h2>
+            <div id="calendar-admin"></div>
+        </section>
+        <section class="citas-franjas-section">
+            <h2>Franjas de Horario Disponibles</h2>
+            <div id="franjas-list"></div>
+            <button id="add-franja-btn">Agregar Franja Horaria</button>
+        </section>
+    </main>
+    <script src="../js/admin-citas.js"></script>
+</body>
+</html>
