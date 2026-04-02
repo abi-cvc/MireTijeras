@@ -1,0 +1,127 @@
+Listado de rutas de carpetas para el volumen Respaldos
+El n£mero de serie del volumen es F876-62DB
+D:.
+|   .lock
+|   estructura.txt
+|   index.html
+|   MireTijeras Project.vpp
+|   MireTijeras Project.vpp.bak_000f
+|   MireTijeras Project.vpp.bak_001d
+|   MireTijeras Project.vpp.bak_002d
+|   
++---.idea
+|       .gitignore
+|       MireTijeras.iml
+|       misc.xml
+|       modules.xml
+|       vcs.xml
+|       workspace.xml
+|       
++---.qodo
+|   +---agents
+|   \---workflows
++---.vpprefdata
+|   |   .systemproject.vpp
+|   |   .systemproject.vpp.bak_000f
+|   |   .systemproject.vpp.bak_001d
+|   |   .systemproject.vpp.bak_002d
+|   |   .systemproject.vpp.bak_003d
+|   |   .systemproject.vpp.bak_004d
+|   |   .systemproject.vpp.bak_005d
+|   |   .vp.preference
+|   |   model_element_spec_tab_visibility.xml
+|   |   resourceCatalog.dat
+|   |   
+|   +---.wi_sa_
+|   +---breadcrumbprompts
+|   |       ProjectBreadcrumbPromptIndexing.xml
+|   |       
+|   +---dictionary
+|   |       user.lx
+|   |       
+|   +---LayoutPerspectiveData
+|   |       ARYisCCGAqAKbwca.jpeg
+|   |       ARYisCCGAqAKbwca.lod
+|   |       ARYisCCGAqAKbwcaM.lod
+|   |       i278sCCGAqAKbwcX.jpeg
+|   |       i278sCCGAqAKbwcX.lod
+|   |       i278sCCGAqAKbwcXM.lod
+|   |       L7yCsCCGAqAKbwcY.jpeg
+|   |       L7yCsCCGAqAKbwcY.lod
+|   |       L7yCsCCGAqAKbwcYM.lod
+|   |       Tb9isCCGAqAKbwcb.jpeg
+|   |       Tb9isCCGAqAKbwcb.lod
+|   |       Tb9isCCGAqAKbwcbM.lod
+|   |       _C4AVxKD.AACAQOE.jpeg
+|   |       _C4AVxKD.AACAQOE.lod
+|   |       _C4AVxKD.AACAQOEC.lod
+|   |       _C4AVxKD.AACAQOEM.lod
+|   |       _C4AVxKD.AACAQOEMC.lod
+|   |       
+|   +---modelTypePreferData
+|   |       Activity
+|   |       ActivityAction
+|   |       Actor
+|   |       Class
+|   |       Frame
+|   |       Model
+|   |       Package
+|   |       System
+|   |       UseCase
+|   |       
+|   +---nicknames
+|   |       HnkzodmGAqBwAQ_l
+|   |       NickNameIndexing.xml
+|   |       XxRbPtmGAqBwAROg
+|   |       
+|   +---processfroms
+|   |       ProjectProcessFromIndexing.xml
+|   |       
+|   +---projectsViewInfo
+|   |       KAT0PtmGAqBwAQBZ
+|   |       mZj3xVmA0lDaTAWp
+|   |       
+|   +---sideComponents
+|   |       Indexing.xml
+|   |       
+|   +---treestates
+|   |       ProjectTreeStateIndexing.xml
+|   |       XxRbPtmGAqBwAROf
+|   |       _mFoodmGAqBwAQl1
+|   |       
+|   \---webdiagramstates
+|           ProjectWebDiagramStateIndexing.xml
+|           
++---.vscode
+|       settings.json
+|       
++---css
+|       services.css
+|       styles.css
+|       
++---html
+|       benefits.html
+|       booking.html
+|       contact.html
+|       reviews.html
+|       services.html
+|       suggestions.html
+|       
++---images
+|       corte_caballero.jpg
+|       corte_dama.jpg
+|       corte_ni¤o.jpg
+|       logo.svg
+|       logo_fondoOscuro.svg
+|       Medidas-cabello.png
+|       modelo.png
+|       modelo_corp.png
+|       muestra1.svg
+|       muestra2.svg
+|       muestra3.svg
+|       muestra4.svg
+|       
++---js
+|       servicios.js
+|       
+\---tmp
