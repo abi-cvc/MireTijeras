@@ -1,0 +1,16 @@
+{
+  "name": "miretijeras",
+  "version": "1.0.0",
+  "description": "Proyecto MireTijeras Frontend y Backend",
+  "main": "index.js",
+  "scripts": {
+    "start:backend": "cd backend && node app.js",
+    "start:frontend": "python -m http.server 8000",
+    "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\""
+  },
+  
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
+

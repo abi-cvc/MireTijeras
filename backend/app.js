@@ -4,8 +4,10 @@ const AuthService = require('./services/AuthService');
 
 const app = express();
 const authService = new AuthService();
+const cors = require('cors');
 
 app.use(express.json());
+app.use(cors()); // Permitir CORS para desarrollo local
 
 // Ruta para login de administrador
 app.post('/api/admin/login', async (req, res) => {
