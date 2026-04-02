@@ -217,11 +217,12 @@ footer {
     background: var(--gradiente_1);
     padding: 10px;
     color: var(--color_1);
+    margin-top: 2rem;
 }
 
 .footer {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between;    
     
 }
 
