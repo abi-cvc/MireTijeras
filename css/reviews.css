@@ -1,0 +1,120 @@
+/* Estilos específicos para la página de reseñas */
+.review-form-section, .reviews-list-section {
+    margin: 40px auto 30px auto;
+    max-width: 700px;
+    background: var(--color_4);
+    border: 2px solid var(--color_3);
+    border-radius: 18px;
+    padding: 30px 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.review-form-section {
+    margin-bottom: 30px;
+}
+#review-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+#review-form input, #review-form select, #review-form textarea {
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1.5px solid var(--color_3);
+    font-size: 1rem;
+}
+#review-form button[type="submit"], #review-form button[type="button"] {
+    background: var(--color_3);
+    color: var(--color_1);
+    border: none;
+    border-radius: 8px;
+    padding: 12px 0;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.2s;
+}
+#review-form button[type="submit"]:hover, #review-form button[type="button"]:hover {
+    background: var(--color_2);
+}
+#review-form button[disabled] {
+    background: #ccc;
+    color: #888;
+    cursor: not-allowed;
+}
+#review-message {
+    margin-top: 18px;
+    font-size: 1.1rem;
+    text-align: center;
+}
+.reviews-list-section {
+    margin-top: 0;
+}
+#reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin-top: 20px;
+}
+.review-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    background: var(--color_6);
+    border: 1.5px solid var(--color_3);
+    border-radius: 12px;
+    padding: 18px 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+}
+.review-card .profile-pic {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--color_3);
+}
+.review-card .review-info {
+    flex: 1;
+}
+.review-card .review-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+.review-card .review-name {
+    font-weight: bold;
+    color: var(--color_3);
+}
+.review-card .review-age {
+    font-size: 0.95rem;
+    color: #666;
+}
+.review-card .review-procedure {
+    font-size: 0.98rem;
+    color: var(--color_2);
+    font-style: italic;
+}
+.review-card .review-comments {
+    margin-top: 6px;
+    color: var(--color_2);
+    font-size: 1.08rem;
+}
+.admin-login-link {
+    margin-top: 18px;
+    text-align: right;
+}
+.admin-link {
+    color: var(--color_3);
+    font-weight: bold;
+    text-decoration: underline;
+    font-size: 1rem;
+}
+.admin-link:hover {
+    color: var(--color_2);
+}
