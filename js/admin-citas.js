@@ -5,15 +5,30 @@ document.getElementById('back-dashboard').addEventListener('click', function() {
 });
 
 // Simulación de franjas y citas
-let franjas = [
-    { dia: '2026-04-03', inicio: '09:00', fin: '13:00' },
-    { dia: '2026-04-03', inicio: '15:00', fin: '18:00' },
-    { dia: '2026-04-04', inicio: '10:00', fin: '14:00' }
-];
-let citas = [
-    { dia: '2026-04-03', hora: '09:30', cliente: 'María López', servicio: 'Corte de cabello' },
-    { dia: '2026-04-04', hora: '11:00', cliente: 'Juan García', servicio: 'Tinte' }
-];
+let franjas = [];
+let citas = [];
+
+// Detecta si está en localhost o en producción
+const API_BASE_URL =
+    window.location.hostname === "localhost"
+        ? "http://localhost:3001"
+        : "https://miretijeras.onrender.com";
+
+// Obtener franjas y citas del backend
+async function fetchFranjasYCitas() {
+    try {
+        const [franjasRes, citasRes] = await Promise.all([
+            fetch(`${API_BASE_URL}/api/franjas`),
+            fetch(`${API_BASE_URL}/api/citas`)
+        ]);
+        franjas = await franjasRes.json();
+        citas = await citasRes.json();
+    } catch (err) {
+        alert('Error al obtener datos del servidor');
+        franjas = [];
+        citas = [];
+    }
+}
 
 function renderCalendar() {
     const cal = document.getElementById('calendar-admin');
@@ -91,11 +106,50 @@ document.getElementById('add-franja-btn').addEventListener('click', function() {
     const inicio = prompt('Hora inicio (HH:MM):');
     const fin = prompt('Hora fin (HH:MM):');
     if (dia && inicio && fin) {
-        franjas.push({ dia, inicio, fin });
-        renderCalendar();
-        renderFranjas();
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/franjas`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ dia, inicio, fin })
+            });
+            if (!res.ok) throw new Error('Error al agregar franja');
+            await fetchFranjasYCitas();
+            renderCalendar();
+            renderFranjas();
+        } catch (err) {
+            alert('Error al agregar franja');
+        }
+    }
+});
+
+// Agregar cita desde el panel admin (prompt demo)
+document.getElementById('add-cita-btn')?.addEventListener('click', async function() {
+    const dia = prompt('Día (YYYY-MM-DD):');
+    const hora = prompt('Hora (HH:MM):');
+    const cliente = prompt('Nombre del cliente:');
+    const servicio = prompt('Servicio:');
+    if (dia && hora && cliente && servicio) {
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/citas`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ dia, hora, cliente, servicio })
+            });
+            if (!res.ok) throw new Error('Error al agregar cita');
+            await fetchFranjasYCitas();
+            renderCalendar();
+            renderFranjas();
+        } catch (err) {
+            alert('Error al agregar cita');
+        }
     }
 });
 
 renderCalendar();
 renderFranjas();
+
+(async function() {
+    await fetchFranjasYCitas();
+    renderCalendar();
+    renderFranjas();
+})();

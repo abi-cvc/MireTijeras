@@ -4,23 +4,23 @@ document.getElementById('back-dashboard').addEventListener('click', function() {
     window.location.href = 'admin-panel.html';
 });
 
-// Simulación de sugerencias (luego se reemplazará por datos del backend)
-const suggestions = [
-    {
-        id: 1,
-        nombre: 'María López',
-        fecha: '2026-04-01',
-        texto: 'Sería genial tener más horarios disponibles.',
-        estado: 'por revisar'
-    },
-    {
-        id: 2,
-        nombre: 'Juan García',
-        fecha: '2026-03-30',
-        texto: 'Me gustaría que agreguen más servicios para caballeros.',
-        estado: 'revisando'
+
+// Detecta si está en localhost o en producción
+const API_BASE_URL =
+    window.location.hostname === "localhost"
+        ? "http://localhost:3001"
+        : "https://miretijeras.onrender.com";
+
+let suggestions = [];
+
+async function fetchSuggestions() {
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/suggestions`);
+        suggestions = await res.json();
+    } catch (err) {
+        suggestions = [];
     }
-];
+}
 
 const estados = ['por revisar', 'revisando', 'finalizado'];
 
@@ -40,7 +40,7 @@ function renderSuggestions() {
             <div class="suggestion-text">${s.texto}</div>
             <div class="suggestion-status">
                 <label for="estado-${s.id}">Estado:</label>
-                <select id="estado-${s.id}" data-idx="${idx}">
+                <select id="estado-${s.id}" data-id="${s.id}" data-idx="${idx}">
                     ${estados.map(e => `<option value="${e}"${e === s.estado ? ' selected' : ''}>${e.charAt(0).toUpperCase() + e.slice(1)}</option>`).join('')}
                 </select>
             </div>
@@ -49,14 +49,23 @@ function renderSuggestions() {
     });
     // Agregar listeners para los selects
     document.querySelectorAll('.suggestion-status select').forEach(sel => {
-        // Badge visual según estado actual
         const idx = sel.getAttribute('data-idx');
         sel.setAttribute('data-current', suggestions[idx].estado);
-        sel.addEventListener('change', function() {
-            const idx = this.getAttribute('data-idx');
-            suggestions[idx].estado = this.value;
-            renderSuggestions(); // Refrescar para aplicar filtro si cambia estado
-            // Aquí podrías guardar el cambio en backend si lo deseas
+        sel.addEventListener('change', async function() {
+            const id = this.getAttribute('data-id');
+            const nuevoEstado = this.value;
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/suggestions/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ estado: nuevoEstado })
+                });
+                if (!res.ok) throw new Error('Error al actualizar estado');
+                await fetchSuggestions();
+                renderSuggestions();
+            } catch (err) {
+                alert('Error al actualizar estado');
+            }
         });
     });
 }
@@ -65,4 +74,8 @@ if (document.getElementById('filter-estado')) {
     document.getElementById('filter-estado').addEventListener('change', renderSuggestions);
 }
 
-renderSuggestions();
+
+(async function() {
+    await fetchSuggestions();
+    renderSuggestions();
+})();

@@ -55,3 +55,8 @@ function addReviewCard({ name, photo, age, procedure, comments }) {
     `;
     document.getElementById('reviews-list').prepend(card);
 }
+
+(async function() {
+  await fetchReviews();
+  renderReviews();
+})();

@@ -4,47 +4,32 @@ document.getElementById('back-dashboard').addEventListener('click', function() {
     window.location.href = 'admin-panel.html';
 });
 
-// Aquí se cargará la lógica para mostrar y gestionar solicitudes de convenio
-// Ejemplo de renderizado inicial (puedes conectar con backend después):
+
+// Detecta si está en localhost o en producción
+const API_BASE_URL =
+  window.location.hostname === "localhost"
+    ? "http://localhost:3001"
+    : "https://miretijeras.onrender.com";
+
+let convenios = [];
+const estados = ['por revisar', 'revisando', 'finalizado'];
+const aprobaciones = ['pendiente', 'aprobado', 'rechazado'];
+
+async function fetchConvenios() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/convenios`);
+    convenios = await res.json();
+  } catch (err) {
+    convenios = [];
+  }
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     const conveniosList = document.getElementById('convenios-list');
     const filtroEstado = document.getElementById('filtro-estado');
     const filtroAprobado = document.getElementById('filtro-aprobado');
-    // Simulación de datos
-    const convenios = [
-        {
-            org: 'Empresa Ejemplo S.A.',
-            contacto: 'Ana Pérez',
-            email: 'ana@ejemplo.com',
-            telefono: '555-1234',
-            mensaje: 'Nos interesa un convenio para 50 empleados.',
-            estado: 'por revisar',
-            aprobado: 'pendiente'
-        },
-        {
-            org: 'Colegio ABC',
-            contacto: 'Luis Gómez',
-            email: 'luis@abc.edu',
-            telefono: '555-5678',
-            mensaje: 'Solicitamos información sobre beneficios para docentes.',
-            estado: 'finalizado',
-            aprobado: 'aprobado'
-        },
-        {
-            org: 'ONG Salud+',
-            contacto: 'Marta Ruiz',
-            email: 'marta@saludmas.org',
-            telefono: '555-9999',
-            mensaje: 'Interesa convenio para voluntarios.',
-            estado: 'finalizado',
-            aprobado: 'pendiente'
-        }
-    ];
-    const estados = ['por revisar', 'revisando', 'finalizado'];
-    const aprobaciones = ['pendiente', 'aprobado', 'rechazado'];
 
-    function renderConvenios() {
+    async function renderConvenios() {
         conveniosList.innerHTML = '';
         const estadoFiltro = filtroEstado ? filtroEstado.value : 'todos';
         const aprobadoFiltro = filtroAprobado ? filtroAprobado.value : 'todos';
@@ -61,12 +46,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 Mensaje: <em>${c.mensaje}</em>
                 <div class="convenio-status">
                     <label for="estado-${idx}">Estado:</label>
-                    <select id="estado-${idx}" data-idx="${idx}">
+                    <select id="estado-${idx}" data-id="${c.id}" data-idx="${idx}">
                         ${estados.map(e => `<option value="${e}"${e === c.estado ? ' selected' : ''}>${e.charAt(0).toUpperCase() + e.slice(1)}</option>`).join('')}
                     </select>
                     ${c.estado === 'finalizado' ? `
                         <label for="aprobado-${idx}" style="margin-left:12px;">Aprobación:</label>
-                        <select id="aprobado-${idx}" data-idx="${idx}">
+                        <select id="aprobado-${idx}" data-id="${c.id}" data-idx="${idx}">
                             ${aprobaciones.map(a => `<option value="${a}"${a === c.aprobado ? ' selected' : ''}>${a.charAt(0).toUpperCase() + a.slice(1)}</option>`).join('')}
                         </select>
                     ` : ''}
@@ -74,30 +59,55 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
             conveniosList.appendChild(card);
         });
-        // Listeners y badge visual para selects de estado
+        // Listeners para selects de estado
         document.querySelectorAll('.convenio-status select[id^="estado-"]').forEach(sel => {
             const idx = sel.getAttribute('data-idx');
             sel.setAttribute('data-current', convenios[idx].estado);
-            sel.addEventListener('change', function() {
-                const idx = this.getAttribute('data-idx');
-                convenios[idx].estado = this.value;
-                if (this.value !== 'finalizado') convenios[idx].aprobado = 'pendiente';
-                renderConvenios();
+            sel.addEventListener('change', async function() {
+                const id = this.getAttribute('data-id');
+                const nuevoEstado = this.value;
+                try {
+                    const res = await fetch(`${API_BASE_URL}/api/convenios/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ estado: nuevoEstado })
+                    });
+                    if (!res.ok) throw new Error('Error al actualizar estado');
+                    await fetchConvenios();
+                    renderConvenios();
+                } catch (err) {
+                    alert('Error al actualizar estado');
+                }
             });
         });
-        // Listeners y badge visual para selects de aprobado
+        // Listeners para selects de aprobado
         document.querySelectorAll('.convenio-status select[id^="aprobado-"]').forEach(sel => {
             const idx = sel.getAttribute('data-idx');
             sel.setAttribute('data-current', convenios[idx].aprobado);
-            sel.addEventListener('change', function() {
-                const idx = this.getAttribute('data-idx');
-                convenios[idx].aprobado = this.value;
-                renderConvenios();
+            sel.addEventListener('change', async function() {
+                const id = this.getAttribute('data-id');
+                const nuevoAprobado = this.value;
+                try {
+                    const res = await fetch(`${API_BASE_URL}/api/convenios/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ aprobado: nuevoAprobado })
+                    });
+                    if (!res.ok) throw new Error('Error al actualizar aprobación');
+                    await fetchConvenios();
+                    renderConvenios();
+                } catch (err) {
+                    alert('Error al actualizar aprobación');
+                }
             });
         });
     }
 
     if (filtroEstado) filtroEstado.addEventListener('change', renderConvenios);
     if (filtroAprobado) filtroAprobado.addEventListener('change', renderConvenios);
-    renderConvenios();
+
+    (async function() {
+      await fetchConvenios();
+      renderConvenios();
+    })();
 });

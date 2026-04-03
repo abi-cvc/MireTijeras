@@ -4,21 +4,25 @@ document.getElementById('back-dashboard').addEventListener('click', function() {
     window.location.href = 'admin-panel.html';
 });
 
-// Simulación de reseñas (luego se reemplazará por datos del backend)
-const reviews = [
-    {
-        id: 1,
-        nombre: 'Ana Torres',
-        fecha: '2026-04-01',
-        texto: '¡Excelente servicio y atención!'
-    },
-    {
-        id: 2,
-        nombre: 'Carlos Pérez',
-        fecha: '2026-03-28',
-        texto: 'Muy profesionales, recomendado.'
+
+// Detecta si está en localhost o en producción
+const API_BASE_URL =
+    window.location.hostname === "localhost"
+        ? "http://localhost:3001"
+        : "https://miretijeras.onrender.com";
+
+let reviews = [];
+
+async function fetchReviews() {
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/reviews`);
+        reviews = await res.json();
+    } catch (err) {
+        alert('Error al obtener reseñas del servidor');
+        reviews = [];
     }
-];
+}
+
 
 function renderReviews() {
     const list = document.getElementById('reviews-list');
@@ -33,12 +37,45 @@ function renderReviews() {
             </div>
             <div class="review-text">${r.texto}</div>
             <div class="review-actions">
-                <button onclick="alert('Pinear reseña #${r.id}')">Pinear</button>
-                <button onclick="alert('Ocultar reseña #${r.id}')">Ocultar</button>
+                <button class="pin-btn" data-id="${r.id}">Pinear</button>
+                <button class="hide-btn" data-id="${r.id}">Ocultar</button>
             </div>
         `;
         list.appendChild(card);
     });
+    // Listeners para pinear y ocultar
+    list.querySelectorAll('.pin-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const id = this.getAttribute('data-id');
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/reviews/${id}/pin`, { method: 'PUT' });
+                if (!res.ok) throw new Error('Error al pinear reseña');
+                await fetchReviews();
+                renderReviews();
+            } catch (err) {
+                alert('Error al pinear reseña');
+            }
+        });
+    });
+    list.querySelectorAll('.hide-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const id = this.getAttribute('data-id');
+            if (confirm('¿Ocultar esta reseña?')) {
+                try {
+                    const res = await fetch(`${API_BASE_URL}/api/reviews/${id}`, { method: 'DELETE' });
+                    if (!res.ok) throw new Error('Error al ocultar reseña');
+                    await fetchReviews();
+                    renderReviews();
+                } catch (err) {
+                    alert('Error al ocultar reseña');
+                }
+            }
+        });
+    });
 }
 
-renderReviews();
+
+(async function() {
+    await fetchReviews();
+    renderReviews();
+})();

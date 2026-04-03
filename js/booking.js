@@ -1,12 +1,35 @@
 // booking.js: Lógica para el calendario de agendar cita
 
-// Configuración general
+
+// Detecta si está en localhost o en producción
+const API_BASE_URL =
+    window.location.hostname === "localhost"
+        ? "http://localhost:3001"
+        : "https://miretijeras.onrender.com";
+
 const calendarContainer = document.getElementById('booking-calendar');
 const weekLabel = document.getElementById('calendar-week-label');
 const prevWeekBtn = document.getElementById('prev-week');
 const nextWeekBtn = document.getElementById('next-week');
 const bookingForm = document.getElementById('booking-form');
 const bookingMessage = document.getElementById('booking-message');
+
+let franjas = [];
+let citas = [];
+
+async function fetchFranjasYCitas() {
+    try {
+        const [franjasRes, citasRes] = await Promise.all([
+            fetch(`${API_BASE_URL}/api/franjas`),
+            fetch(`${API_BASE_URL}/api/citas`)
+        ]);
+        franjas = await franjasRes.json();
+        citas = await citasRes.json();
+    } catch (err) {
+        franjas = [];
+        citas = [];
+    }
+}
 
 // Configuración de días y horas
 const DAYS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
@@ -73,23 +96,31 @@ function renderCalendar() {
         label.textContent = `${DAYS[i]}\n${dayDate.getDate()}/${dayDate.getMonth()+1}`;
         dayDiv.appendChild(label);
 
-        // Horas disponibles (simulado, luego se conectará al backend)
+        // Mostrar solo horas disponibles según franjas y citas
         if (isPast(dayDate)) {
             const noDisp = document.createElement('div');
             noDisp.className = 'no-available';
             noDisp.textContent = 'No disponible';
             dayDiv.appendChild(noDisp);
         } else {
+            // Buscar franjas para este día
+            const diaStr = formatDate(dayDate);
+            const franjasDia = franjas.filter(f => f.dia === diaStr);
             let hasAvailable = false;
             HOURS.forEach(hour => {
-                // Aquí se consultará al backend para saber si está disponible
-                const slot = document.createElement('div');
-                slot.className = 'hour-slot';
-                slot.textContent = hour;
-                slot.tabIndex = 0;
-                slot.addEventListener('click', () => selectSlot(dayDate, hour, slot));
-                dayDiv.appendChild(slot);
-                hasAvailable = true;
+                // ¿Está dentro de alguna franja?
+                const disponible = franjasDia.some(f => hour >= f.inicio && hour < f.fin);
+                // ¿Ya hay cita en esa hora?
+                const ocupada = citas.some(c => c.dia === diaStr && c.hora === hour);
+                if (disponible && !ocupada) {
+                    const slot = document.createElement('div');
+                    slot.className = 'hour-slot';
+                    slot.textContent = hour;
+                    slot.tabIndex = 0;
+                    slot.addEventListener('click', () => selectSlot(dayDate, hour, slot));
+                    dayDiv.appendChild(slot);
+                    hasAvailable = true;
+                }
             });
             if (!hasAvailable) {
                 const noDisp = document.createElement('div');
@@ -129,21 +160,48 @@ nextWeekBtn.addEventListener('click', () => {
     }
 });
 
-bookingForm.addEventListener('submit', function(e) {
+bookingForm.addEventListener('submit', async function(e) {
     e.preventDefault();
     if (!selectedDate || !selectedHour) {
         bookingMessage.textContent = 'Por favor selecciona una fecha y hora.';
         bookingMessage.style.color = '#a94442';
         return;
     }
-    // Aquí se enviará la reserva al backend
-    bookingMessage.textContent = '¡Reserva enviada! (Simulación)';
-    bookingMessage.style.color = 'green';
+    // Enviar reserva al backend
+    const nombre = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const telefono = document.getElementById('phone').value;
+    const servicio = document.getElementById('service').value;
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/citas`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                dia: selectedDate,
+                hora: selectedHour,
+                cliente: nombre,
+                email,
+                telefono,
+                servicio
+            })
+        });
+        if (!res.ok) throw new Error('Error al reservar');
+        bookingMessage.textContent = '¡Reserva enviada!';
+        bookingMessage.style.color = 'green';
+        await fetchFranjasYCitas();
+        renderCalendar();
+    } catch (err) {
+        bookingMessage.textContent = 'Error al reservar';
+        bookingMessage.style.color = '#a94442';
+    }
     bookingForm.reset();
     document.getElementById('date').value = '';
     document.getElementById('time').value = '';
     document.querySelectorAll('.hour-slot.selected').forEach(e => e.classList.remove('selected'));
 });
 
-// Inicializa
-renderCalendar();
+
+(async function() {
+    await fetchFranjasYCitas();
+    renderCalendar();
+})();
