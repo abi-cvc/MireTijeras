@@ -14,7 +14,22 @@ app.use(cors({
 }));
 app.use(express.json());
 
+
+// Rutas de citas
 app.use('/api', require('./citas.routes'));
+
+// Ruta para login de administrador
+const AuthService = require('./services/AuthService');
+const authService = new AuthService();
+app.post('/api/admin/login', async (req, res) => {
+  const { email, password } = req.body;
+  const isValid = await authService.login(email, password);
+  if (isValid) {
+    res.status(200).json({ success: true, message: 'Login exitoso' });
+  } else {
+    res.status(401).json({ success: false, message: 'Credenciales inválidas' });
+  }
+});
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
