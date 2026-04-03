@@ -4,10 +4,9 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 
-const allowedOrigins = [
-  'http://localhost:3000', // para desarrollo local
-  'https://mire-tijeras-mh3afnm7l-abigails-projects-f25ee858.vercel.app', // tu dominio de Vercel
-];
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',')
+  : [];
 
 app.use(cors({
   origin: allowedOrigins,
