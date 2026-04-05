@@ -1,7 +1,7 @@
 // reviews.js: Lógica real para reseñas con Google Sign-In
 
 const API_BASE_URL =
-    window.location.hostname === "localhost"
+    globalThis.location.hostname === "localhost"
         ? "http://localhost:3001"
         : "https://miretijeras.onrender.com";
 
@@ -12,7 +12,7 @@ if (user) {
 }
 
 // Google Sign-In callback en scope global
-window.onGoogleSignIn = function(response) {
+globalThis.onGoogleSignIn = function(response) {
     fetch(`${API_BASE_URL}/api/google-login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
