@@ -10,14 +10,12 @@ const API_BASE_URL =
 document.getElementById('suggestion-form').addEventListener('submit', async function(e) {
     e.preventDefault();
     document.getElementById('suggestion-message').textContent = '';
-    const nombre = document.getElementById('suggestion-name').value;
-    const email = document.getElementById('suggestion-email').value;
     const texto = document.getElementById('suggestion').value;
     try {
         const res = await fetch(`${API_BASE_URL}/api/suggestions`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nombre, email, texto })
+            body: JSON.stringify({ texto })
         });
         if (!res.ok) throw new Error('Error al enviar sugerencia');
         document.getElementById('suggestion-form').reset();
