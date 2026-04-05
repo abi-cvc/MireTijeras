@@ -100,27 +100,7 @@ function renderFranjas() {
     });
 }
 
-document.getElementById('add-franja-btn').addEventListener('click', async function() {
-    // Simple prompt para demo
-    const dia = prompt('Día (YYYY-MM-DD):');
-    const inicio = prompt('Hora inicio (HH:MM):');
-    const fin = prompt('Hora fin (HH:MM):');
-    if (dia && inicio && fin) {
-        try {
-            const res = await fetch(`${API_BASE_URL}/api/franjas`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ dia, inicio, fin })
-            });
-            if (!res.ok) throw new Error('Error al agregar franja');
-            await fetchFranjasYCitas();
-            renderCalendar();
-            renderFranjas();
-        } catch (err) {
-            alert('Error al agregar franja');
-        }
-    }
-});
+// ...el listener del botón ahora solo muestra el modal (ver más abajo)...
 
 // Agregar cita desde el panel admin (prompt demo)
 document.getElementById('add-cita-btn')?.addEventListener('click', async function() {
@@ -153,3 +133,38 @@ renderFranjas();
     renderCalendar();
     renderFranjas();
 })();
+
+// Mostrar el modal al hacer clic en el botón
+document.getElementById('add-franja-btn').addEventListener('click', function() {
+    document.getElementById('franja-modal').style.display = 'flex';
+});
+
+// Cancelar y cerrar el modal
+document.getElementById('franja-cancel-btn').addEventListener('click', function() {
+    document.getElementById('franja-modal').style.display = 'none';
+});
+
+// Guardar la franja
+document.getElementById('franja-save-btn').addEventListener('click', async function() {
+    const dia = document.getElementById('franja-dia').value;
+    const inicio = document.getElementById('franja-inicio').value;
+    const fin = document.getElementById('franja-fin').value;
+    if (dia && inicio && fin) {
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/franjas`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ dia, inicio, fin })
+            });
+            if (!res.ok) throw new Error('Error al agregar franja');
+            await fetchFranjasYCitas();
+            renderCalendar();
+            renderFranjas();
+            document.getElementById('franja-modal').style.display = 'none';
+        } catch (err) {
+            alert('Error al agregar franja');
+        }
+    } else {
+        alert('Completa todos los campos');
+    }
+});
