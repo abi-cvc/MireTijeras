@@ -1,3 +1,11 @@
+// Crear tabla suggestions si no existe
+const pool = require('./db');
+pool.query(`CREATE TABLE IF NOT EXISTS suggestions (
+  id SERIAL PRIMARY KEY,
+  fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  texto TEXT NOT NULL
+)`);
+
 // index.js - Servidor Express principal
 require('dotenv').config();
 const express = require('express');
@@ -22,6 +30,22 @@ app.use(express.json());
 app.use('/api', require('./citas.routes'));
 // Rutas de reseñas
 app.use('/api/reviews', require('./reviews.routes'));
+
+// Ruta para sugerencias
+app.post('/api/suggestions', async (req, res) => {
+  const { texto } = req.body;
+  if (!texto) return res.status(400).json({ error: 'Texto requerido' });
+  try {
+    const result = await pool.query(
+      'INSERT INTO suggestions (texto) VALUES ($1) RETURNING *',
+      [texto]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error('Error al guardar sugerencia:', err);
+    res.status(500).json({ error: 'Error al guardar sugerencia' });
+  }
+});
 
 // Ruta para login de administrador
 const AuthService = require('./services/AuthService');
