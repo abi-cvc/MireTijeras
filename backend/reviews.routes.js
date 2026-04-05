@@ -17,12 +17,16 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   const { nombre, fecha, texto, foto, procedimiento, edad } = req.body;
   try {
+    // Log de los datos recibidos
+    console.log('POST /api/reviews body:', req.body);
     const result = await pool.query(
       'INSERT INTO reviews (nombre, fecha, texto, foto, procedimiento, edad) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
       [nombre, fecha, texto, foto, procedimiento, edad]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
+    // Log de error detallado
+    console.error('Error al insertar reseña:', err);
     res.status(500).json({ error: err.message });
   }
 });
