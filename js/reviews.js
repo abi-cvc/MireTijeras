@@ -11,8 +11,8 @@ if (user) {
     habilitarFormulario(user);
 }
 
-// Google Sign-In callback
-function onGoogleSignIn(response) {
+// Google Sign-In callback en scope global
+window.onGoogleSignIn = function(response) {
     fetch(`${API_BASE_URL}/api/google-login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -41,7 +41,7 @@ function habilitarFormulario(user) {
 // Enviar reseña real
 document.getElementById('review-form').addEventListener('submit', function(e) {
     e.preventDefault();
-    const user = JSON.parse(localStorage.getItem('user'));
+    let user = JSON.parse(localStorage.getItem('user'));
     if (!user) return alert('Debes iniciar sesión con Google');
     const procedure = document.getElementById('procedure').value;
     const age = document.getElementById('age').value;
