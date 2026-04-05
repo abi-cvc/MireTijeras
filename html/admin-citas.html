@@ -35,13 +35,21 @@
     <script src="../js/admin-citas.js"></script>
 
     <div id="franja-modal" class="franja-horaria">
-        <div style="background:#fff; padding:20px; border-radius:8px; min-width:250px;">
+        <div class="franja-modal-content">
             <h3>Agregar Franja Horaria</h3>
-            <label>Día: <input type="date" id="franja-dia"></label><br>
-            <label>Hora inicio: <input type="time" id="franja-inicio"></label><br>
-            <label>Hora fin: <input type="time" id="franja-fin"></label><br>
-            <button id="franja-save-btn">Guardar</button>
-            <button id="franja-cancel-btn">Cancelar</button>
+            <label>Día
+                <input type="date" id="franja-dia">
+            </label>
+            <label>Hora inicio
+                <input type="time" id="franja-inicio">
+            </label>
+            <label>Hora fin
+                <input type="time" id="franja-fin">
+            </label>
+            <div class="franja-btns">
+                <button id="franja-save-btn">Guardar</button>
+                <button id="franja-cancel-btn">Cancelar</button>
+            </div>
         </div>
     </div>
 </body>

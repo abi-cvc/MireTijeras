@@ -91,12 +91,75 @@
 }
 
 .franja-horaria {
-    display:none; 
-    position:fixed; 
-    top:0; left:0; 
-    width:100vw; 
-    height:100vh; 
-    background:rgba(0,0,0,0.3); 
-    align-items:center; 
-    justify-content:center;
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.35);
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+.franja-horaria .franja-modal-content {
+    background: #fff;
+    padding: 32px 28px 24px 28px;
+    border-radius: 16px;
+    min-width: 300px;
+    box-shadow: 0 4px 24px rgba(225,10,100,0.10);
+    border: 2px solid var(--color_3);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+}
+.franja-horaria h3 {
+    color: var(--color_3);
+    font-family: 'Dancing Script', cursive;
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+    text-align: center;
+}
+.franja-horaria label {
+    color: var(--color_3);
+    font-weight: 500;
+    margin-bottom: 4px;
+    display: flex;
+    flex-direction: column;
+    font-size: 1rem;
+}
+.franja-horaria input[type="date"],
+.franja-horaria input[type="time"] {
+    border: 1.5px solid var(--color_3);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 1rem;
+    margin-top: 2px;
+    margin-bottom: 8px;
+    outline: none;
+    transition: border 0.2s;
+}
+.franja-horaria input[type="date"]:focus,
+.franja-horaria input[type="time"]:focus {
+    border: 1.5px solid var(--color_2);
+}
+.franja-horaria button {
+    background: var(--color_3);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 0;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 6px;
+    transition: background 0.2s;
+}
+.franja-horaria button:hover {
+    background: var(--color_2);
+}
+.franja-horaria .franja-btns {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
 }

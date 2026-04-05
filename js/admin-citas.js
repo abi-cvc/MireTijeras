@@ -134,37 +134,54 @@ renderFranjas();
     renderFranjas();
 })();
 
-// Mostrar el modal al hacer clic en el botón
-document.getElementById('add-franja-btn').addEventListener('click', function() {
-    document.getElementById('franja-modal').style.display = 'flex';
-});
 
-// Cancelar y cerrar el modal
-document.getElementById('franja-cancel-btn').addEventListener('click', function() {
-    document.getElementById('franja-modal').style.display = 'none';
-});
+// Esperar a que el DOM esté listo antes de agregar listeners del modal
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('franja-modal');
+    const btnOpen = document.getElementById('add-franja-btn');
+    const btnCancel = document.getElementById('franja-cancel-btn');
+    const btnSave = document.getElementById('franja-save-btn');
+    const inputDia = document.getElementById('franja-dia');
+    const inputInicio = document.getElementById('franja-inicio');
+    const inputFin = document.getElementById('franja-fin');
 
-// Guardar la franja
-document.getElementById('franja-save-btn').addEventListener('click', async function() {
-    const dia = document.getElementById('franja-dia').value;
-    const inicio = document.getElementById('franja-inicio').value;
-    const fin = document.getElementById('franja-fin').value;
-    if (dia && inicio && fin) {
-        try {
-            const res = await fetch(`${API_BASE_URL}/api/franjas`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ dia, inicio, fin })
-            });
-            if (!res.ok) throw new Error('Error al agregar franja');
-            await fetchFranjasYCitas();
-            renderCalendar();
-            renderFranjas();
-            document.getElementById('franja-modal').style.display = 'none';
-        } catch (err) {
-            alert('Error al agregar franja');
-        }
-    } else {
-        alert('Completa todos los campos');
+    if (btnOpen && modal) {
+        btnOpen.addEventListener('click', function() {
+            // Limpiar campos
+            inputDia.value = '';
+            inputInicio.value = '';
+            inputFin.value = '';
+            modal.style.display = 'flex';
+        });
+    }
+    if (btnCancel && modal) {
+        btnCancel.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+    }
+    if (btnSave && modal) {
+        btnSave.addEventListener('click', async function() {
+            const dia = inputDia.value;
+            const inicio = inputInicio.value;
+            const fin = inputFin.value;
+            if (dia && inicio && fin) {
+                try {
+                    const res = await fetch(`${API_BASE_URL}/api/franjas`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ dia, inicio, fin })
+                    });
+                    if (!res.ok) throw new Error('Error al agregar franja');
+                    await fetchFranjasYCitas();
+                    renderCalendar();
+                    renderFranjas();
+                    modal.style.display = 'none';
+                } catch (err) {
+                    alert('Error al agregar franja');
+                }
+            } else {
+                alert('Completa todos los campos');
+            }
+        });
     }
 });
