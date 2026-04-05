@@ -1,62 +1,114 @@
-// reviews.js: Lógica para la página de reseñas (solo frontend, sin integración real)
+// reviews.js: Lógica real para reseñas con Google Sign-In
 
-let isLoggedIn = false;
+const API_BASE_URL =
+    window.location.hostname === "localhost"
+        ? "http://localhost:3001"
+        : "https://miretijeras.onrender.com";
 
-document.getElementById('google-login').addEventListener('click', function() {
-    // Aquí se integrará Google OAuth en el futuro
-    isLoggedIn = true;
+// Al cargar, revisa si hay usuario autenticado
+const user = JSON.parse(localStorage.getItem('user'));
+if (user) {
+    habilitarFormulario(user);
+}
+
+// Google Sign-In callback
+function onGoogleSignIn(response) {
+    fetch(`${API_BASE_URL}/api/google-login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: response.credential })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.nombre && data.foto) {
+            localStorage.setItem('user', JSON.stringify(data));
+            habilitarFormulario(data);
+        } else {
+            alert('No se pudo autenticar con Google');
+        }
+    });
+}
+
+function habilitarFormulario(user) {
     document.getElementById('submit-review').disabled = false;
-    document.getElementById('google-login').disabled = true;
-    document.getElementById('google-login').textContent = 'Sesión iniciada';
-});
+    // Opcional: muestra el nombre/foto en la UI
+    const userInfo = document.getElementById('user-info');
+    if (userInfo) {
+        userInfo.innerHTML = `<img src="${user.foto}" alt="Foto" class="profile-pic"> <span>${user.nombre}</span>`;
+    }
+}
 
-document.getElementById('review-form').addEventListener('input', function() {
-    // El botón de publicar solo se habilita si hay sesión iniciada
-    document.getElementById('submit-review').disabled = !isLoggedIn;
-});
-
+// Enviar reseña real
 document.getElementById('review-form').addEventListener('submit', function(e) {
     e.preventDefault();
-    if (!isLoggedIn) return;
-    // Simulación de reseña publicada
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user) return alert('Debes iniciar sesión con Google');
     const procedure = document.getElementById('procedure').value;
     const age = document.getElementById('age').value;
     const comments = document.getElementById('comments').value;
-    // Simulación de datos de usuario autenticado
-    const user = {
-        name: 'Usuario Demo',
-        photo: 'https://www.gravatar.com/avatar/?d=mp',
-        age: age,
-        procedure: procedure,
-        comments: comments
-    };
-    addReviewCard(user);
-    document.getElementById('review-message').textContent = '¡Reseña publicada! (Simulación)';
-    document.getElementById('review-form').reset();
-    document.getElementById('submit-review').disabled = true;
-    isLoggedIn = false;
-    document.getElementById('google-login').disabled = false;
-    document.getElementById('google-login').textContent = 'Iniciar sesión con Google';
+    fetch(`${API_BASE_URL}/api/reviews`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            nombre: user.nombre,
+            foto: user.foto,
+            fecha: new Date().toISOString().slice(0,10),
+            texto: comments,
+            procedimiento: procedure,
+            edad: age
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById('review-message').textContent = '¡Reseña publicada!';
+        document.getElementById('review-form').reset();
+        fetchReviews().then(renderReviews);
+    });
 });
 
-function addReviewCard({ name, photo, age, procedure, comments }) {
-    const card = document.createElement('div');
-    card.className = 'review-card';
-    card.innerHTML = `
-        <img class="profile-pic" src="${photo}" alt="Foto de perfil">
-        <div class="review-info">
-            <div class="review-header">
-                <span class="review-name">${name}</span>
-                <span class="review-age">${age} años</span>
-            </div>
-            <div class="review-procedure">${procedure.charAt(0).toUpperCase() + procedure.slice(1)}</div>
-            <div class="review-comments">${comments}</div>
-        </div>
-    `;
-    document.getElementById('reviews-list').prepend(card);
+// Obtener y renderizar reseñas
+async function fetchReviews() {
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/reviews`);
+        return await res.json();
+    } catch {
+        return [];
+    }
 }
 
-(async function() {
-  await fetchReviews();
-  renderReviews();
-})();
+async function renderReviews() {
+    const reviews = await fetchReviews();
+    const list = document.getElementById('reviews-list');
+    list.innerHTML = '';
+    reviews.forEach(r => {
+        const card = document.createElement('div');
+        card.className = 'review-card';
+        card.innerHTML = `
+            <img class="profile-pic" src="${r.foto || 'https://www.gravatar.com/avatar/?d=mp'}" alt="Foto de perfil">
+            <div class="review-info">
+                <div class="review-header">
+                    <span class="review-name">${r.nombre}</span>
+                    ${r.edad ? `<span class="review-age">${r.edad} años</span>` : ''}
+                </div>
+                ${r.procedimiento ? `<div class="review-procedure">${r.procedimiento.charAt(0).toUpperCase() + r.procedimiento.slice(1)}</div>` : ''}
+                <div class="review-comments">${r.texto}</div>
+            </div>
+        `;
+        list.appendChild(card);
+    });
+}
+
+// Inicializar reseñas al cargar
+renderReviews();
+
+const user = JSON.parse(localStorage.getItem('user'));
+fetch('https://TU_BACKEND_URL/api/reviews', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+        nombre: user.nombre,
+        foto: user.foto,
+        fecha: new Date().toISOString().slice(0,10),
+        texto: document.getElementById('texto-reseña').value
+    })
+});

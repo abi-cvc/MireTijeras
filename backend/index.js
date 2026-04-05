@@ -8,6 +8,9 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',')
   : [];
 
+const { OAuth2Client } = require('google-auth-library');
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
 app.use(cors({
   origin: allowedOrigins,
   credentials: true, // si usas cookies o autenticación
@@ -38,3 +41,21 @@ app.listen(PORT, () => {
   console.log(`Servidor backend escuchando en puerto ${PORT}`);
 });
 
+app.post('/api/google-login', async (req, res) => {
+  const { token } = req.body;
+  try {
+    const ticket = await googleClient.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    // payload.name, payload.picture, payload.email
+    res.json({
+      nombre: payload.name,
+      foto: payload.picture,
+      email: payload.email
+    });
+  } catch (err) {
+    res.status(401).json({ error: 'Token inválido' });
+  }
+});

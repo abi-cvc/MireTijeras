@@ -4,7 +4,10 @@ CREATE TABLE IF NOT EXISTS reviews (
     nombre VARCHAR(100) NOT NULL,
     fecha DATE NOT NULL,
     texto TEXT NOT NULL,
-    pineada BOOLEAN DEFAULT FALSE
+    pineada BOOLEAN DEFAULT FALSE,
+    foto TEXT,
+    procedimiento VARCHAR(100),
+    edad INTEGER
 );
 -- Tabla de franjas horarias disponibles
 CREATE TABLE IF NOT EXISTS franjas (
