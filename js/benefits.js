@@ -10,11 +10,11 @@ const API_BASE_URL =
 document.getElementById('benefits-form').addEventListener('submit', async function(e) {
     e.preventDefault();
     document.getElementById('benefits-message').textContent = '';
-    const org = document.getElementById('benefits-org').value;
-    const contacto = document.getElementById('benefits-contact').value;
-    const email = document.getElementById('benefits-email').value;
-    const telefono = document.getElementById('benefits-phone').value;
-    const mensaje = document.getElementById('benefits-message-text').value;
+    const org = document.getElementById('org-name').value;
+    const contacto = document.getElementById('contact-name').value;
+    const email = document.getElementById('contact-email').value;
+    const telefono = document.getElementById('contact-phone').value;
+    const mensaje = document.getElementById('message').value;
     try {
         const res = await fetch(`${API_BASE_URL}/api/convenios`, {
             method: 'POST',
