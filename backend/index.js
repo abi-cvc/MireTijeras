@@ -28,6 +28,8 @@ app.use(express.json());
 
 // Rutas de citas
 app.use('/api', require('./citas.routes'));
+// Rutas de convenios
+app.use('/api/convenios', require('./convenios.routes'));
 // Rutas de reseñas
 app.use('/api/reviews', require('./reviews.routes'));
 

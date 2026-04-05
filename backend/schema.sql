@@ -18,7 +18,6 @@ CREATE TABLE IF NOT EXISTS franjas (
     disponible BOOLEAN DEFAULT TRUE
 );
 
--- Tabla de citas agendadas
 CREATE TABLE IF NOT EXISTS citas (
     id SERIAL PRIMARY KEY,
     fecha DATE NOT NULL,
@@ -26,4 +25,15 @@ CREATE TABLE IF NOT EXISTS citas (
     cliente VARCHAR(100) NOT NULL,
     servicio VARCHAR(100) NOT NULL,
     franja_id INTEGER REFERENCES franjas(id) ON DELETE SET NULL
+);
+-- Tabla de convenios
+CREATE TABLE IF NOT EXISTS convenios (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    telefono VARCHAR(30),
+    empresa VARCHAR(100) NOT NULL,
+    mensaje TEXT,
+    estado VARCHAR(30) DEFAULT 'pendiente',
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
