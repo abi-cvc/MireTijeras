@@ -100,7 +100,7 @@ function renderFranjas() {
     });
 }
 
-document.getElementById('add-franja-btn').addEventListener('click', function() {
+document.getElementById('add-franja-btn').addEventListener('click', async function() {
     // Simple prompt para demo
     const dia = prompt('Día (YYYY-MM-DD):');
     const inicio = prompt('Hora inicio (HH:MM):');
