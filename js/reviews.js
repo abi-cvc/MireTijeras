@@ -100,15 +100,3 @@ async function renderReviews() {
 
 // Inicializar reseñas al cargar
 renderReviews();
-
-const user = JSON.parse(localStorage.getItem('user'));
-fetch('https://TU_BACKEND_URL/api/reviews', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-        nombre: user.nombre,
-        foto: user.foto,
-        fecha: new Date().toISOString().slice(0,10),
-        texto: document.getElementById('texto-reseña').value
-    })
-});
