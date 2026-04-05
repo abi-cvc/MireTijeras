@@ -17,6 +17,8 @@ app.use(express.json());
 
 // Rutas de citas
 app.use('/api', require('./citas.routes'));
+// Rutas de reseñas
+app.use('/api/reviews', require('./reviews.routes'));
 
 // Ruta para login de administrador
 const AuthService = require('./services/AuthService');

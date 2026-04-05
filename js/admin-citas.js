@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const res = await fetch(`${API_BASE_URL}/api/franjas`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ dia, inicio, fin })
+                        body: JSON.stringify({ fecha: dia, hora_inicio: inicio, hora_fin: fin })
                     });
                     if (!res.ok) throw new Error('Error al agregar franja');
                     await fetchFranjasYCitas();

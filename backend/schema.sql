@@ -1,3 +1,11 @@
+-- Tabla de reseñas
+CREATE TABLE IF NOT EXISTS reviews (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    fecha DATE NOT NULL,
+    texto TEXT NOT NULL,
+    pineada BOOLEAN DEFAULT FALSE
+);
 -- Tabla de franjas horarias disponibles
 CREATE TABLE IF NOT EXISTS franjas (
     id SERIAL PRIMARY KEY,
