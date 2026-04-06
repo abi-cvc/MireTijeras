@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('./db');
+const verifyAdmin = require('./middleware/verifyAdmin');
 
 // Obtener todas las reseñas (públicas: solo visibles)
 router.get('/', async (req, res) => {
@@ -14,7 +15,7 @@ router.get('/', async (req, res) => {
 });
 
 // Obtener todas las reseñas (admin: todas)
-router.get('/all', async (req, res) => {
+router.get('/all', verifyAdmin, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM reviews ORDER BY fecha DESC');
     res.json(result.rows);
@@ -43,7 +44,7 @@ router.post('/', async (req, res) => {
 
 
 // Pinear/despinear una reseña (solo si visible y máximo 10 pineadas)
-router.put('/:id/pin', async (req, res) => {
+router.put('/:id/pin', verifyAdmin, async (req, res) => {
   try {
     // Obtener la reseña
     const { rows } = await pool.query('SELECT pineada, visible FROM reviews WHERE id = $1', [req.params.id]);
@@ -65,7 +66,7 @@ router.put('/:id/pin', async (req, res) => {
 });
 
 // Cambiar visibilidad de una reseña (ocultar o volver visible)
-router.put('/:id/visible', async (req, res) => {
+router.put('/:id/visible', verifyAdmin, async (req, res) => {
   const { visible } = req.body;
   if (typeof visible !== 'boolean') return res.status(400).json({ error: 'Valor de visibilidad inválido' });
   try {

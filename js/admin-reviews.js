@@ -4,18 +4,37 @@ document.getElementById('back-dashboard').addEventListener('click', function() {
     window.location.href = 'admin-panel.html';
 });
 
-
 // Detecta si está en localhost o en producción
 const API_BASE_URL =
     window.location.hostname === "localhost"
         ? "http://localhost:3001"
         : "https://miretijeras.onrender.com";
 
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function getAdminToken() {
+    const token = sessionStorage.getItem('adminToken');
+    if (!token) { window.location.href = 'admin-login.html'; return null; }
+    return token;
+}
+
+function authHeaders() {
+    return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAdminToken()}` };
+}
+
 let reviews = [];
 
 async function fetchReviews() {
     try {
-        const res = await fetch(`${API_BASE_URL}/api/reviews/all`);
+        const res = await fetch(`${API_BASE_URL}/api/reviews/all`, { headers: authHeaders() });
         reviews = await res.json();
     } catch (err) {
         alert('Error al obtener reseñas del servidor');
@@ -35,10 +54,10 @@ function renderReviews() {
         if (!r.visible) card.classList.add('review-hidden');
         card.innerHTML = `
             <div class="review-header">
-                <span>${r.nombre}</span>
-                <span class="review-date">${r.fecha}</span>
+                <span>${escapeHtml(r.nombre)}</span>
+                <span class="review-date">${escapeHtml(String(r.fecha))}</span>
             </div>
-            <div class="review-text">${r.texto}</div>
+            <div class="review-text">${escapeHtml(r.texto)}</div>
             <div class="review-actions">
                 <button class="pin-btn" data-id="${r.id}" ${!r.visible ? 'disabled' : ''} ${r.pineada ? 'data-pinned="true"' : ''}>
                     ${r.pineada ? 'Despinear' : 'Pinear'}
@@ -58,7 +77,7 @@ function renderReviews() {
         btn.addEventListener('click', async function() {
             const id = this.getAttribute('data-id');
             try {
-                const res = await fetch(`${API_BASE_URL}/api/reviews/${id}/pin`, { method: 'PUT' });
+                const res = await fetch(`${API_BASE_URL}/api/reviews/${id}/pin`, { method: 'PUT', headers: authHeaders() });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error || 'Error al pinear reseña');
                 await fetchReviews();
@@ -79,7 +98,7 @@ function renderReviews() {
                 try {
                     const res = await fetch(`${API_BASE_URL}/api/reviews/${id}/visible`, {
                         method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: authHeaders(),
                         body: JSON.stringify({ visible: newVisible })
                     });
                     const data = await res.json();

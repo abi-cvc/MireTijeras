@@ -11,13 +11,33 @@ const API_BASE_URL =
     ? "http://localhost:3001"
     : "https://miretijeras.onrender.com";
 
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function getAdminToken() {
+    const token = sessionStorage.getItem('adminToken');
+    if (!token) { window.location.href = 'admin-login.html'; return null; }
+    return token;
+}
+
+function authHeaders() {
+    return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAdminToken()}` };
+}
+
 let convenios = [];
 const estados = ['por revisar', 'revisando', 'finalizado'];
 const aprobaciones = ['pendiente', 'aprobado', 'rechazado'];
 
 async function fetchConvenios() {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/convenios`);
+    const res = await fetch(`${API_BASE_URL}/api/convenios`, { headers: authHeaders() });
     convenios = await res.json();
   } catch (err) {
     convenios = [];
@@ -39,11 +59,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const card = document.createElement('div');
             card.className = 'convenio-card';
             card.innerHTML = `
-                <strong>${c.empresa}</strong> <br>
-                Contacto: ${c.nombre} <br>
-                Email: ${c.email} <br>
-                Tel: ${c.telefono} <br>
-                Mensaje: <em>${c.mensaje}</em>
+                <strong>${escapeHtml(c.empresa)}</strong> <br>
+                Contacto: ${escapeHtml(c.nombre)} <br>
+                Email: ${escapeHtml(c.email)} <br>
+                Tel: ${escapeHtml(c.telefono)} <br>
+                Mensaje: <em>${escapeHtml(c.mensaje)}</em>
                 <div class="convenio-status">
                     <label for="estado-${idx}">Estado:</label>
                     <select id="estado-${idx}" data-id="${c.id}" data-idx="${idx}">
@@ -68,8 +88,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const nuevoEstado = this.value;
                 try {
                     const res = await fetch(`${API_BASE_URL}/api/convenios/${id}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
+                        method: 'PATCH',
+                        headers: authHeaders(),
                         body: JSON.stringify({ estado: nuevoEstado })
                     });
                     if (!res.ok) throw new Error('Error al actualizar estado');
@@ -89,8 +109,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const nuevoAprobado = this.value;
                 try {
                     const res = await fetch(`${API_BASE_URL}/api/convenios/${id}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
+                        method: 'PATCH',
+                        headers: authHeaders(),
                         body: JSON.stringify({ aprobado: nuevoAprobado })
                     });
                     if (!res.ok) throw new Error('Error al actualizar aprobación');

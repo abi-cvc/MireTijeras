@@ -4,22 +4,31 @@ document.getElementById('back-dashboard').addEventListener('click', function() {
     window.location.href = 'admin-panel.html';
 });
 
-// Simulación de franjas y citas
-let franjas = [];
-let citas = [];
-
 // Detecta si está en localhost o en producción
 const API_BASE_URL =
     window.location.hostname === "localhost"
         ? "http://localhost:3001"
         : "https://miretijeras.onrender.com";
 
+function getAdminToken() {
+    const token = sessionStorage.getItem('adminToken');
+    if (!token) { window.location.href = 'admin-login.html'; return null; }
+    return token;
+}
+
+function authHeaders() {
+    return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAdminToken()}` };
+}
+
+let franjas = [];
+let citas = [];
+
 // Obtener franjas y citas del backend
 async function fetchFranjasYCitas() {
     try {
         const [franjasRes, citasRes] = await Promise.all([
             fetch(`${API_BASE_URL}/api/franjas`),
-            fetch(`${API_BASE_URL}/api/citas`)
+            fetch(`${API_BASE_URL}/api/citas`, { headers: authHeaders() })
         ]);
         franjas = await franjasRes.json();
         citas = await citasRes.json();
@@ -187,7 +196,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 try {
                     const res = await fetch(`${API_BASE_URL}/api/franjas`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: authHeaders(),
                         body: JSON.stringify({ fecha: dia, hora_inicio: inicio, hora_fin: fin })
                     });
                     if (!res.ok) {

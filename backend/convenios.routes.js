@@ -2,9 +2,10 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('./db');
+const verifyAdmin = require('./middleware/verifyAdmin');
 
 // Obtener todos los convenios
-router.get('/', async (req, res) => {
+router.get('/', verifyAdmin, async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM convenios ORDER BY id DESC');
         res.json(result.rows);
@@ -35,7 +36,7 @@ router.post('/', async (req, res) => {
 });
 
 // Actualizar estado de un convenio
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', verifyAdmin, async (req, res) => {
     const { id } = req.params;
     const { estado } = req.body;
     try {

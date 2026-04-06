@@ -11,11 +11,31 @@ const API_BASE_URL =
         ? "http://localhost:3001"
         : "https://miretijeras.onrender.com";
 
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function getAdminToken() {
+    const token = sessionStorage.getItem('adminToken');
+    if (!token) { window.location.href = 'admin-login.html'; return null; }
+    return token;
+}
+
+function authHeaders() {
+    return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAdminToken()}` };
+}
+
 let suggestions = [];
 
 async function fetchSuggestions() {
     try {
-        const res = await fetch(`${API_BASE_URL}/api/suggestions`);
+        const res = await fetch(`${API_BASE_URL}/api/suggestions`, { headers: authHeaders() });
         suggestions = await res.json();
     } catch (err) {
         suggestions = [];
@@ -34,10 +54,9 @@ function renderSuggestions() {
         card.className = 'suggestion-card';
         card.innerHTML = `
             <div class="suggestion-header">
-                <span>${s.nombre}</span>
-                <span class="suggestion-date">${s.fecha}</span>
+                <span class="suggestion-date">${escapeHtml(String(s.fecha))}</span>
             </div>
-            <div class="suggestion-text">${s.texto}</div>
+            <div class="suggestion-text">${escapeHtml(s.texto)}</div>
             <div class="suggestion-status">
                 <label for="estado-${s.id}">Estado:</label>
                 <select id="estado-${s.id}" data-id="${s.id}" data-idx="${idx}">
@@ -57,7 +76,7 @@ function renderSuggestions() {
             try {
                 const res = await fetch(`${API_BASE_URL}/api/suggestions/${id}`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: authHeaders(),
                     body: JSON.stringify({ estado: nuevoEstado })
                 });
                 if (!res.ok) throw new Error('Error al actualizar estado');

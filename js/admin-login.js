@@ -20,8 +20,9 @@ document.getElementById('admin-login-form').addEventListener('submit', async fun
             body: JSON.stringify({ email, password })
         });
         const data = await res.json();
-        if (data.success) {
-            window.location.href = 'admin-panel.html'; // Redirigir al panel (a crear)
+        if (data.success && data.token) {
+            sessionStorage.setItem('adminToken', data.token);
+            window.location.href = 'admin-panel.html';
         } else {
             errorDiv.textContent = data.message || 'Credenciales incorrectas';
         }

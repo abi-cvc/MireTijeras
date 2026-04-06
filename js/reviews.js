@@ -1,5 +1,23 @@
 // reviews.js: Lógica real para reseñas con Google Sign-In
 
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function safeImgSrc(url) {
+    try {
+        const u = new URL(url);
+        if (u.protocol === 'https:' || u.protocol === 'http:') return escapeHtml(url);
+    } catch {}
+    return '';
+}
+
 const API_BASE_URL =
     globalThis.location.hostname === "localhost"
         ? "http://localhost:3001"
@@ -34,7 +52,7 @@ function habilitarFormulario(user) {
     // Opcional: muestra el nombre/foto en la UI
     const userInfo = document.getElementById('user-info');
     if (userInfo) {
-        userInfo.innerHTML = `<img src="${user.foto}" alt="Foto" class="profile-pic"> <span>${user.nombre}</span>`;
+        userInfo.innerHTML = `<img src="${safeImgSrc(user.foto)}" alt="Foto" class="profile-pic"> <span>${escapeHtml(user.nombre)}</span>`;
     }
 }
 
@@ -84,14 +102,14 @@ async function renderReviews() {
         const card = document.createElement('div');
         card.className = 'review-card';
         card.innerHTML = `
-            <img class="profile-pic" src="${r.foto || 'https://www.gravatar.com/avatar/?d=mp'}" alt="Foto de perfil">
+            <img class="profile-pic" src="${safeImgSrc(r.foto) || 'https://www.gravatar.com/avatar/?d=mp'}" alt="Foto de perfil">
             <div class="review-info">
                 <div class="review-header">
-                    <span class="review-name">${r.nombre}</span>
-                    ${r.edad ? `<span class="review-age">${r.edad} años</span>` : ''}
+                    <span class="review-name">${escapeHtml(r.nombre)}</span>
+                    ${r.edad ? `<span class="review-age">${escapeHtml(String(r.edad))} años</span>` : ''}
                 </div>
-                ${r.procedimiento ? `<div class="review-procedure">${r.procedimiento.charAt(0).toUpperCase() + r.procedimiento.slice(1)}</div>` : ''}
-                <div class="review-comments">${r.texto}</div>
+                ${r.procedimiento ? `<div class="review-procedure">${escapeHtml(r.procedimiento.charAt(0).toUpperCase() + r.procedimiento.slice(1))}</div>` : ''}
+                <div class="review-comments">${escapeHtml(r.texto)}</div>
             </div>
         `;
         list.appendChild(card);

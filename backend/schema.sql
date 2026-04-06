@@ -27,6 +27,14 @@ CREATE TABLE IF NOT EXISTS citas (
     servicio VARCHAR(100) NOT NULL,
     franja_id INTEGER REFERENCES franjas(id) ON DELETE SET NULL
 );
+-- Tabla de sugerencias
+CREATE TABLE IF NOT EXISTS suggestions (
+    id SERIAL PRIMARY KEY,
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    texto TEXT NOT NULL,
+    estado VARCHAR(30) DEFAULT 'por revisar'
+);
+
 -- Tabla de convenios
 CREATE TABLE IF NOT EXISTS convenios (
     id SERIAL PRIMARY KEY,

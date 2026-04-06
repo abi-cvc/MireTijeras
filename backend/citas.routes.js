@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('./db');
+const verifyAdmin = require('./middleware/verifyAdmin');
 
 // Obtener todas las franjas
 router.get('/franjas', async (req, res) => {
@@ -14,7 +15,7 @@ router.get('/franjas', async (req, res) => {
 });
 
 // Crear una nueva franja
-router.post('/franjas', async (req, res) => {
+router.post('/franjas', verifyAdmin, async (req, res) => {
   const { fecha, hora_inicio, hora_fin } = req.body;
   try {
     // Validar que no se solape con otra franja del mismo día
@@ -36,7 +37,7 @@ router.post('/franjas', async (req, res) => {
 });
 
 // Eliminar una franja
-router.delete('/franjas/:id', async (req, res) => {
+router.delete('/franjas/:id', verifyAdmin, async (req, res) => {
   try {
     await pool.query('DELETE FROM franjas WHERE id = $1', [req.params.id]);
     res.json({ success: true });
@@ -46,7 +47,7 @@ router.delete('/franjas/:id', async (req, res) => {
 });
 
 // Obtener todas las citas
-router.get('/citas', async (req, res) => {
+router.get('/citas', verifyAdmin, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM citas ORDER BY fecha, hora');
     res.json(result.rows);

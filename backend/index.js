@@ -1,10 +1,13 @@
-// Crear tabla suggestions si no existe
+// Inicializar tabla suggestions (crea si no existe, agrega columna estado si falta)
 const pool = require('./db');
 pool.query(`CREATE TABLE IF NOT EXISTS suggestions (
   id SERIAL PRIMARY KEY,
   fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  texto TEXT NOT NULL
-)`);
+  texto TEXT NOT NULL,
+  estado VARCHAR(30) DEFAULT 'por revisar'
+)`).then(() =>
+  pool.query(`ALTER TABLE suggestions ADD COLUMN IF NOT EXISTS estado VARCHAR(30) DEFAULT 'por revisar'`)
+).catch(err => console.error('Error inicializando tabla suggestions:', err));
 
 // index.js - Servidor Express principal
 require('dotenv').config();
@@ -18,6 +21,8 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
 
 const { OAuth2Client } = require('google-auth-library');
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const jwt = require('jsonwebtoken');
+const verifyAdmin = require('./middleware/verifyAdmin');
 
 app.use(cors({
   origin: allowedOrigins,
@@ -34,7 +39,7 @@ app.use('/api/convenios', require('./convenios.routes'));
 app.use('/api/reviews', require('./reviews.routes'));
 
 // Ruta para sugerencias
-app.get('/api/suggestions', async (req, res) => {
+app.get('/api/suggestions', verifyAdmin, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM suggestions ORDER BY fecha DESC');
     res.json(result.rows);
@@ -60,7 +65,7 @@ app.post('/api/suggestions', async (req, res) => {
 });
 
 // Actualizar estado de una sugerencia
-app.put('/api/suggestions/:id', async (req, res) => {
+app.put('/api/suggestions/:id', verifyAdmin, async (req, res) => {
   const { id } = req.params;
   const { estado } = req.body;
   if (!estado) return res.status(400).json({ error: 'Estado requerido' });
@@ -83,7 +88,8 @@ app.post('/api/admin/login', async (req, res) => {
   const { email, password } = req.body;
   const isValid = await authService.login(email, password);
   if (isValid) {
-    res.status(200).json({ success: true, message: 'Login exitoso' });
+    const token = jwt.sign({ role: 'admin' }, process.env.JWT_SECRET, { expiresIn: '8h' });
+    res.status(200).json({ success: true, token });
   } else {
     res.status(401).json({ success: false, message: 'Credenciales inválidas' });
   }
