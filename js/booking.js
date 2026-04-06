@@ -24,13 +24,19 @@ async function fetchFranjasYCitas() {
             fetch(`${API_BASE_URL}/api/citas`)
         ]);
         franjas = await franjasRes.json();
-        // Normalizar fechas de franjas a YYYY-MM-DD
+        // Normalizar fechas de franjas a YYYY-MM-DD y usar 'fecha' como campo principal
         franjas = franjas.map(f => {
-            let dia = f.dia || f.fecha;
-            if (dia && dia.includes('T')) dia = dia.split('T')[0];
-            return { ...f, dia };
+            let fecha = f.fecha || f.dia;
+            if (fecha && fecha.includes('T')) fecha = fecha.split('T')[0];
+            return { ...f, fecha };
         });
         citas = await citasRes.json();
+        // Normalizar fechas de citas a YYYY-MM-DD y usar 'fecha' como campo principal
+        citas = citas.map(c => {
+            let fecha = c.fecha || c.dia;
+            if (fecha && fecha.includes('T')) fecha = fecha.split('T')[0];
+            return { ...c, fecha };
+        });
     } catch (err) {
         franjas = [];
         citas = [];
@@ -87,9 +93,9 @@ function renderCalendar() {
     // Etiqueta de la semana
     weekLabel.textContent = `${monday.toLocaleDateString('es-EC', { day: '2-digit', month: 'short' })} - ${addDays(monday, 4).toLocaleDateString('es-EC', { day: '2-digit', month: 'short', year: 'numeric' })}`;
 
-    // Renderiza los días
+    // Renderiza los días (lunes a domingo)
     calendarContainer.innerHTML = '';
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 7; i++) {
         const dayDate = addDays(monday, i);
         const dayDiv = document.createElement('div');
         dayDiv.className = 'booking-day';
@@ -110,14 +116,14 @@ function renderCalendar() {
             dayDiv.appendChild(noDisp);
         } else {
             // Buscar franjas para este día
-            const diaStr = formatDate(dayDate);
-            const franjasDia = franjas.filter(f => f.dia === diaStr);
+            const fechaStr = formatDate(dayDate);
+            const franjasDia = franjas.filter(f => f.fecha === fechaStr);
             let hasAvailable = false;
             HOURS.forEach(hour => {
                 // ¿Está dentro de alguna franja?
-                const disponible = franjasDia.some(f => hour >= f.inicio && hour < f.fin);
+                const disponible = franjasDia.some(f => hour >= f.hora_inicio && hour < f.hora_fin);
                 // ¿Ya hay cita en esa hora?
-                const ocupada = citas.some(c => c.dia === diaStr && c.hora === hour);
+                const ocupada = citas.some(c => c.fecha === fechaStr && c.hora === hour);
                 if (disponible && !ocupada) {
                     const slot = document.createElement('div');
                     slot.className = 'hour-slot';
