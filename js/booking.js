@@ -24,6 +24,12 @@ async function fetchFranjasYCitas() {
             fetch(`${API_BASE_URL}/api/citas`)
         ]);
         franjas = await franjasRes.json();
+        // Normalizar fechas de franjas a YYYY-MM-DD
+        franjas = franjas.map(f => {
+            let dia = f.dia || f.fecha;
+            if (dia && dia.includes('T')) dia = dia.split('T')[0];
+            return { ...f, dia };
+        });
         citas = await citasRes.json();
     } catch (err) {
         franjas = [];

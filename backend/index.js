@@ -43,6 +43,7 @@ app.get('/api/suggestions', async (req, res) => {
   }
 });
 
+
 app.post('/api/suggestions', async (req, res) => {
   const { texto } = req.body;
   if (!texto) return res.status(400).json({ error: 'Texto requerido' });
@@ -55,6 +56,23 @@ app.post('/api/suggestions', async (req, res) => {
   } catch (err) {
     console.error('Error al guardar sugerencia:', err);
     res.status(500).json({ error: 'Error al guardar sugerencia' });
+  }
+});
+
+// Actualizar estado de una sugerencia
+app.put('/api/suggestions/:id', async (req, res) => {
+  const { id } = req.params;
+  const { estado } = req.body;
+  if (!estado) return res.status(400).json({ error: 'Estado requerido' });
+  try {
+    const result = await pool.query(
+      'UPDATE suggestions SET estado = $1 WHERE id = $2 RETURNING *',
+      [estado, id]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Sugerencia no encontrada' });
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al actualizar estado' });
   }
 });
 

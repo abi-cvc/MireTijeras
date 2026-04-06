@@ -36,10 +36,12 @@ function renderCalendar() {
     // Construir eventos para FullCalendar
     const events = [];
     franjas.forEach(f => {
+        let fecha = f.fecha;
+        if (fecha && fecha.includes('T')) fecha = fecha.split('T')[0];
         events.push({
             title: 'Disponible',
-            start: f.fecha + 'T' + f.hora_inicio,
-            end: f.fecha + 'T' + f.hora_fin,
+            start: fecha + 'T' + f.hora_inicio,
+            end: fecha + 'T' + f.hora_fin,
             color: '#1a9c5e',
             display: 'background',
             rendering: 'background',
@@ -101,7 +103,10 @@ function renderFranjas() {
     franjas.forEach((f, idx) => {
         const franjaDiv = document.createElement('div');
         franjaDiv.className = 'franja-item';
-        franjaDiv.innerHTML = `${f.fecha}: ${f.hora_inicio} - ${f.hora_fin}`;
+        // Mostrar solo YYYY-MM-DD
+        let fecha = f.fecha;
+        if (fecha && fecha.includes('T')) fecha = fecha.split('T')[0];
+        franjaDiv.innerHTML = `${fecha}: ${f.hora_inicio} - ${f.hora_fin}`;
         list.appendChild(franjaDiv);
     });
 }
