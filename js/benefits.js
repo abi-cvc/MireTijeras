@@ -37,16 +37,20 @@ document.getElementById('benefits-form').addEventListener('submit', async functi
             return;
         }
         document.getElementById('benefits-form').reset();
-        const plane = document.getElementById('paper-plane-svg');
-        plane.style.display = 'block';
-        plane.classList.remove('reset-animation');
-        plane.offsetWidth;
-        plane.classList.add('paper-plane-svg');
-        setTimeout(() => {
-            plane.style.display = 'none';
-            plane.classList.add('reset-animation');
+        const planeAnim = document.getElementById('plane-animation');
+        if (planeAnim) {
+            planeAnim.style.display = 'block';
+            planeAnim.classList.remove('reset-animation');
+            planeAnim.offsetWidth;
+            planeAnim.classList.add('paper-plane-svg');
+            setTimeout(() => {
+                planeAnim.style.display = 'none';
+                planeAnim.classList.add('reset-animation');
+                document.getElementById('benefits-message').textContent = '¡Solicitud enviada!';
+            }, 2200);
+        } else {
             document.getElementById('benefits-message').textContent = '¡Solicitud enviada!';
-        }, 2200);
+        }
     } catch (err) {
         document.getElementById('benefits-message').textContent = 'Error al enviar solicitud';
         console.error('Error en fetch:', err);

@@ -38,17 +38,23 @@ function renderCalendar() {
     franjas.forEach(f => {
         events.push({
             title: 'Disponible',
-            start: f.dia + 'T' + f.inicio,
-            end: f.dia + 'T' + f.fin,
+            start: f.fecha + 'T' + f.hora_inicio,
+            end: f.fecha + 'T' + f.hora_fin,
             color: '#1a9c5e',
             display: 'background',
+            rendering: 'background',
             extendedProps: { tipo: 'franja' }
         });
     });
     citas.forEach(c => {
+        // Usar campos correctos: fecha y hora
+        const fecha = c.fecha || c.dia;
+        const hora = c.hora;
+        // Ajustar a zona horaria -5 si es necesario (solo visual, no cambia datos en BD)
+        let start = fecha + 'T' + hora;
         events.push({
             title: `Agendado: ${c.cliente} / ${c.servicio}`,
-            start: c.dia + 'T' + c.hora,
+            start: start,
             color: '#e10a64',
             extendedProps: { tipo: 'cita' }
         });
@@ -165,23 +171,34 @@ document.addEventListener('DOMContentLoaded', function() {
             const inicio = inputInicio.value;
             const fin = inputFin.value;
             if (dia && inicio && fin) {
+                // Validación frontend: no solapar
+                const solapa = franjas.some(f =>
+                    f.fecha === dia && !(fin <= f.hora_inicio || inicio >= f.hora_fin)
+                );
+                if (solapa) {
+                    alert('La franja se solapa con otra existente para ese día.');
+                    return;
+                }
                 try {
                     const res = await fetch(`${API_BASE_URL}/api/franjas`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ fecha: dia, hora_inicio: inicio, hora_fin: fin })
                     });
-                    if (!res.ok) throw new Error('Error al agregar franja');
+                    if (!res.ok) {
+                        const data = await res.json().catch(() => ({}));
+                        throw new Error(data.error || 'Error al agregar franja');
+                    }
                     await fetchFranjasYCitas();
                     renderCalendar();
                     renderFranjas();
                     modal.style.display = 'none';
                 } catch (err) {
-                    alert('Error al agregar franja');
+                    alert(err.message || 'Error al agregar franja');
                 }
-            } else {
-                alert('Completa todos los campos');
             }
+        });
+    }
         });
     }
 });

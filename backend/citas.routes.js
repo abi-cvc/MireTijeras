@@ -17,6 +17,14 @@ router.get('/franjas', async (req, res) => {
 router.post('/franjas', async (req, res) => {
   const { fecha, hora_inicio, hora_fin } = req.body;
   try {
+    // Validar que no se solape con otra franja del mismo día
+    const { rows: solapadas } = await pool.query(
+      `SELECT * FROM franjas WHERE fecha = $1 AND NOT ($3 <= hora_inicio OR $2 >= hora_fin)`,
+      [fecha, hora_inicio, hora_fin]
+    );
+    if (solapadas.length > 0) {
+      return res.status(400).json({ error: 'La franja se solapa con otra existente para ese día.' });
+    }
     const result = await pool.query(
       'INSERT INTO franjas (fecha, hora_inicio, hora_fin) VALUES ($1, $2, $3) RETURNING *',
       [fecha, hora_inicio, hora_fin]

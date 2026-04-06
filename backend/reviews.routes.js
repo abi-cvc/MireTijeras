@@ -3,10 +3,10 @@ const express = require('express');
 const router = express.Router();
 const pool = require('./db');
 
-// Obtener todas las reseñas
+// Obtener todas las reseñas (públicas: solo visibles)
 router.get('/', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM reviews ORDER BY fecha DESC');
+    const result = await pool.query('SELECT * FROM reviews WHERE visible = true ORDER BY fecha DESC');
     res.json(result.rows);
   } catch (err) {
     res.status(500).json({ error: err.message });

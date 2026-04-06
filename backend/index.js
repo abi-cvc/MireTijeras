@@ -34,6 +34,15 @@ app.use('/api/convenios', require('./convenios.routes'));
 app.use('/api/reviews', require('./reviews.routes'));
 
 // Ruta para sugerencias
+app.get('/api/suggestions', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM suggestions ORDER BY fecha DESC');
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al obtener sugerencias' });
+  }
+});
+
 app.post('/api/suggestions', async (req, res) => {
   const { texto } = req.body;
   if (!texto) return res.status(400).json({ error: 'Texto requerido' });

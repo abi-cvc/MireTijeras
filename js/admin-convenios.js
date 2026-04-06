@@ -39,8 +39,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const card = document.createElement('div');
             card.className = 'convenio-card';
             card.innerHTML = `
-                <strong>${c.org}</strong> <br>
-                Contacto: ${c.contacto} <br>
+                <strong>${c.empresa}</strong> <br>
+                Contacto: ${c.nombre} <br>
                 Email: ${c.email} <br>
                 Tel: ${c.telefono} <br>
                 Mensaje: <em>${c.mensaje}</em>
