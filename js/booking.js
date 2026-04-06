@@ -189,7 +189,7 @@ bookingForm.addEventListener('submit', async function(e) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                dia: selectedDate,
+                fecha: selectedDate,
                 hora: selectedHour,
                 cliente: nombre,
                 email,
