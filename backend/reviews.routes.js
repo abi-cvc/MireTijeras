@@ -13,6 +13,16 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Obtener todas las reseñas (admin: todas)
+router.get('/all', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM reviews ORDER BY fecha DESC');
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Crear una nueva reseña
 router.post('/', async (req, res) => {
   const { nombre, fecha, texto, foto, procedimiento, edad } = req.body;

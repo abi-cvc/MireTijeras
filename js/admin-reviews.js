@@ -15,7 +15,7 @@ let reviews = [];
 
 async function fetchReviews() {
     try {
-        const res = await fetch(`${API_BASE_URL}/api/reviews`);
+        const res = await fetch(`${API_BASE_URL}/api/reviews/all`);
         reviews = await res.json();
     } catch (err) {
         alert('Error al obtener reseñas del servidor');
