@@ -19,7 +19,7 @@ document.getElementById('benefits-form').addEventListener('submit', async functi
         const res = await fetch(`${API_BASE_URL}/api/convenios`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ org, contacto, email, telefono, mensaje })
+            body: JSON.stringify({ nombre, email, telefono, empresa, mensaje })
         });
         if (!res.ok) throw new Error('Error al enviar solicitud');
         document.getElementById('benefits-form').reset();
