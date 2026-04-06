@@ -95,7 +95,7 @@ function renderFranjas() {
     franjas.forEach((f, idx) => {
         const franjaDiv = document.createElement('div');
         franjaDiv.className = 'franja-item';
-        franjaDiv.innerHTML = `${f.dia}: ${f.inicio} - ${f.fin}`;
+        franjaDiv.innerHTML = `${f.fecha}: ${f.hora_inicio} - ${f.hora_fin}`;
         list.appendChild(franjaDiv);
     });
 }

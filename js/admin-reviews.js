@@ -27,9 +27,12 @@ async function fetchReviews() {
 function renderReviews() {
     const list = document.getElementById('reviews-list');
     list.innerHTML = '';
+    // Contar cuántas hay pineadas y visibles
+    const pinCount = reviews.filter(r => r.pineada && r.visible).length;
     reviews.forEach(r => {
         const card = document.createElement('div');
         card.className = 'review-card';
+        if (!r.visible) card.classList.add('review-hidden');
         card.innerHTML = `
             <div class="review-header">
                 <span>${r.nombre}</span>
@@ -37,37 +40,54 @@ function renderReviews() {
             </div>
             <div class="review-text">${r.texto}</div>
             <div class="review-actions">
-                <button class="pin-btn" data-id="${r.id}">Pinear</button>
-                <button class="hide-btn" data-id="${r.id}">Ocultar</button>
+                <button class="pin-btn" data-id="${r.id}" ${!r.visible ? 'disabled' : ''} ${r.pineada ? 'data-pinned="true"' : ''}>
+                    ${r.pineada ? 'Despinear' : 'Pinear'}
+                </button>
+                <button class="vis-btn" data-id="${r.id}">
+                    ${r.visible ? 'Ocultar' : 'Visible'}
+                </button>
+            </div>
+            <div class="review-status">
+                ${r.visible ? (r.pineada ? '<span class="pin-status">Pineada</span>' : '<span class="pin-status">Visible</span>') : '<span class="pin-status">Oculta</span>'}
             </div>
         `;
         list.appendChild(card);
     });
-    // Listeners para pinear y ocultar
+    // Listeners para pinear/despinear
     list.querySelectorAll('.pin-btn').forEach(btn => {
         btn.addEventListener('click', async function() {
             const id = this.getAttribute('data-id');
             try {
                 const res = await fetch(`${API_BASE_URL}/api/reviews/${id}/pin`, { method: 'PUT' });
-                if (!res.ok) throw new Error('Error al pinear reseña');
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Error al pinear reseña');
                 await fetchReviews();
                 renderReviews();
             } catch (err) {
-                alert('Error al pinear reseña');
+                alert(err.message || 'Error al pinear reseña');
             }
         });
     });
-    list.querySelectorAll('.hide-btn').forEach(btn => {
+    // Listeners para visibilidad
+    list.querySelectorAll('.vis-btn').forEach(btn => {
         btn.addEventListener('click', async function() {
             const id = this.getAttribute('data-id');
-            if (confirm('¿Ocultar esta reseña?')) {
+            const review = reviews.find(r => r.id == id);
+            const newVisible = !review.visible;
+            let msg = newVisible ? '¿Hacer visible esta reseña?' : '¿Ocultar esta reseña?';
+            if (confirm(msg)) {
                 try {
-                    const res = await fetch(`${API_BASE_URL}/api/reviews/${id}`, { method: 'DELETE' });
-                    if (!res.ok) throw new Error('Error al ocultar reseña');
+                    const res = await fetch(`${API_BASE_URL}/api/reviews/${id}/visible`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ visible: newVisible })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.error || 'Error al cambiar visibilidad');
                     await fetchReviews();
                     renderReviews();
                 } catch (err) {
-                    alert('Error al ocultar reseña');
+                    alert(err.message || 'Error al cambiar visibilidad');
                 }
             }
         });

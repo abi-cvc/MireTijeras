@@ -19,9 +19,23 @@ document.getElementById('benefits-form').addEventListener('submit', async functi
         const res = await fetch(`${API_BASE_URL}/api/convenios`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nombre, email, telefono, empresa, mensaje })
+            body: JSON.stringify({
+                nombre: contacto,
+                email,
+                telefono,
+                empresa: org,
+                mensaje
+            })
         });
-        if (!res.ok) throw new Error('Error al enviar solicitud');
+        let data = {};
+        try {
+            data = await res.json();
+        } catch (e) {}
+        if (!res.ok) {
+            console.error('Respuesta del backend:', data);
+            document.getElementById('benefits-message').textContent = data.error || 'Error al enviar solicitud';
+            return;
+        }
         document.getElementById('benefits-form').reset();
         const plane = document.getElementById('paper-plane-svg');
         plane.style.display = 'block';
@@ -35,5 +49,6 @@ document.getElementById('benefits-form').addEventListener('submit', async functi
         }, 2200);
     } catch (err) {
         document.getElementById('benefits-message').textContent = 'Error al enviar solicitud';
+        console.error('Error en fetch:', err);
     }
 });

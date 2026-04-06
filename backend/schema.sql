@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS reviews (
     fecha DATE NOT NULL,
     texto TEXT NOT NULL,
     pineada BOOLEAN DEFAULT FALSE,
+    visible BOOLEAN DEFAULT TRUE,
     foto TEXT,
     procedimiento VARCHAR(100),
     edad INTEGER

@@ -16,9 +16,11 @@ router.get('/', async (req, res) => {
 
 // Crear un nuevo convenio
 router.post('/', async (req, res) => {
+    console.log('Body recibido en /api/convenios:', req.body);
     const { nombre, email, telefono, empresa, mensaje } = req.body;
     if (!nombre || !email || !empresa) {
-        return res.status(400).json({ error: 'Faltan campos obligatorios' });
+        console.warn('Solicitud rechazada por campos faltantes:', req.body);
+        return res.status(400).json({ error: 'Faltan campos obligatorios', body: req.body });
     }
     try {
         const result = await pool.query(
@@ -28,7 +30,7 @@ router.post('/', async (req, res) => {
         res.status(201).json(result.rows[0]);
     } catch (err) {
         console.error('Error al crear convenio:', err);
-        res.status(500).json({ error: 'Error al crear convenio' });
+        res.status(500).json({ error: 'Error al crear convenio', details: err.message });
     }
 });
 
