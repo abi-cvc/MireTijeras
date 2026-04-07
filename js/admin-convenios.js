@@ -1,5 +1,7 @@
 // admin-convenios.js: Lógica para la gestión de convenios en el panel admin
 
+if (!sessionStorage.getItem('adminToken')) { window.location.href = 'admin-login.html'; }
+
 document.getElementById('back-dashboard').addEventListener('click', function() {
     window.location.href = 'admin-panel.html';
 });

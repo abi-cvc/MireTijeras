@@ -1,7 +1,12 @@
 // Lógica preliminar para el dashboard de administración
 
+// Protección de ruta: redirigir si no hay token
+if (!sessionStorage.getItem('adminToken')) {
+    window.location.href = 'admin-login.html';
+}
+
 document.getElementById('logout-btn').addEventListener('click', function() {
-    // En un futuro: limpiar sesión/token
+    sessionStorage.removeItem('adminToken');
     window.location.href = 'admin-login.html';
 });
 

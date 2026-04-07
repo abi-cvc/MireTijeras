@@ -16,6 +16,16 @@ const citasLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Ruta pública: franjas ocupadas (solo fecha+hora, sin datos personales)
+router.get('/citas/disponibilidad', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT fecha, hora FROM citas ORDER BY fecha, hora');
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Obtener todas las franjas (sin paginación — el calendario necesita todas)
 router.get('/franjas', async (req, res) => {
   try {

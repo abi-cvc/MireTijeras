@@ -21,7 +21,7 @@ async function fetchFranjasYCitas() {
     try {
         const [franjasRes, citasRes] = await Promise.all([
             fetch(`${API_BASE_URL}/api/franjas`),
-            fetch(`${API_BASE_URL}/api/citas`)
+            fetch(`${API_BASE_URL}/api/citas/disponibilidad`)
         ]);
         franjas = await franjasRes.json();
         // Normalizar fechas de franjas a YYYY-MM-DD y usar 'fecha' como campo principal
@@ -31,9 +31,9 @@ async function fetchFranjasYCitas() {
             return { ...f, fecha };
         });
         citas = await citasRes.json();
-        // Normalizar fechas de citas a YYYY-MM-DD y usar 'fecha' como campo principal
+        // Normalizar fechas de citas a YYYY-MM-DD
         citas = citas.map(c => {
-            let fecha = c.fecha || c.dia;
+            let fecha = c.fecha;
             if (fecha && fecha.includes('T')) fecha = fecha.split('T')[0];
             return { ...c, fecha };
         });

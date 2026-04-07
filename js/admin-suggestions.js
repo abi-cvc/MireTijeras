@@ -1,5 +1,7 @@
 // Lógica inicial para la gestión de sugerencias
 
+if (!sessionStorage.getItem('adminToken')) { window.location.href = 'admin-login.html'; }
+
 document.getElementById('back-dashboard').addEventListener('click', function() {
     window.location.href = 'admin-panel.html';
 });
