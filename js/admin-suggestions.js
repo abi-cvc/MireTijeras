@@ -1,37 +1,9 @@
 // Lógica inicial para la gestión de sugerencias
-
-if (!sessionStorage.getItem('adminToken')) { window.location.href = 'admin-login.html'; }
+// Dependencias compartidas cargadas por admin-common.js
 
 document.getElementById('back-dashboard').addEventListener('click', function() {
     window.location.href = 'admin-panel.html';
 });
-
-
-// Detecta si está en localhost o en producción
-const API_BASE_URL =
-    window.location.hostname === "localhost"
-        ? "http://localhost:3001"
-        : "https://miretijeras.onrender.com";
-
-function escapeHtml(str) {
-    if (!str) return '';
-    return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-}
-
-function getAdminToken() {
-    const token = sessionStorage.getItem('adminToken');
-    if (!token) { window.location.href = 'admin-login.html'; return null; }
-    return token;
-}
-
-function authHeaders() {
-    return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAdminToken()}` };
-}
 
 let suggestions = [];
 

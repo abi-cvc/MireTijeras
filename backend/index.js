@@ -41,7 +41,7 @@ app.use(cors({
   origin: allowedOrigins,
   credentials: true, // si usas cookies o autenticación
 }));
-app.use(express.json());
+app.use(express.json({ limit: '50kb' }));
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
@@ -52,6 +52,9 @@ const loginLimiter = rateLimit({
 });
 
 
+
+// Health check
+app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
 // Rutas de citas
 app.use('/api', require('./citas.routes'));

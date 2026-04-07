@@ -59,6 +59,7 @@ const reviewValidation = [
   body('nombre').trim().notEmpty().withMessage('El nombre es requerido').isLength({ max: 100 }).withMessage('El nombre no puede superar 100 caracteres'),
   body('fecha').notEmpty().withMessage('La fecha es requerida').isDate().withMessage('Formato de fecha inválido (YYYY-MM-DD)'),
   body('texto').trim().notEmpty().withMessage('El texto es requerido'),
+  body('foto').optional({ nullable: true, checkFalsy: true }).isURL({ protocols: ['http', 'https'], require_protocol: true }).withMessage('La foto debe ser una URL válida (http/https)'),
   body('procedimiento').optional().isLength({ max: 100 }).withMessage('El procedimiento no puede superar 100 caracteres'),
   body('edad').optional({ nullable: true }).isInt({ min: 1, max: 120 }).withMessage('Edad inválida'),
 ];

@@ -139,6 +139,22 @@ router.post('/citas', citasLimiter, citaValidation, validate, async (req, res) =
   }
 });
 
+// Limpiar franjas y citas de fechas pasadas (admin)
+router.delete('/citas/pasadas', verifyAdmin, async (req, res) => {
+  try {
+    const hoy = new Date().toISOString().split('T')[0];
+    const citasRes = await pool.query('DELETE FROM citas WHERE fecha < $1', [hoy]);
+    const franjasRes = await pool.query('DELETE FROM franjas WHERE fecha < $1', [hoy]);
+    res.json({
+      success: true,
+      citasEliminadas: citasRes.rowCount,
+      franjasEliminadas: franjasRes.rowCount,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Cancelar una cita (libera la franja asociada)
 router.delete('/citas/:id', verifyAdmin, async (req, res) => {
   const { id } = req.params;

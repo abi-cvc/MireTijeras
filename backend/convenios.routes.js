@@ -5,6 +5,7 @@ const pool = require('./db');
 const verifyAdmin = require('./middleware/verifyAdmin');
 const validate = require('./middleware/validate');
 const { body } = require('express-validator');
+const { notificarConvenio } = require('./services/emailService');
 
 // Obtener todos los convenios (admin, con paginación opcional)
 router.get('/', verifyAdmin, async (req, res) => {
@@ -47,9 +48,10 @@ router.post('/', convenioValidation, validate, async (req, res) => {
             'INSERT INTO convenios (nombre, email, telefono, empresa, mensaje) VALUES ($1, $2, $3, $4, $5) RETURNING *',
             [nombre, email, telefono || null, empresa, mensaje || '']
         );
+        notificarConvenio({ nombre, email, telefono, empresa, mensaje });
         res.status(201).json(result.rows[0]);
     } catch (err) {
-        res.status(500).json({ error: 'Error al crear convenio', details: err.message });
+        res.status(500).json({ error: 'Error al crear convenio' });
     }
 });
 

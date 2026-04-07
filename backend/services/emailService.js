@@ -80,4 +80,33 @@ async function notificarCita({ cliente, email, telefono, fecha, hora, servicio }
   }
 }
 
-module.exports = { notificarCita };
+/**
+ * Notifica al admin cuando llega una nueva solicitud de convenio.
+ */
+async function notificarConvenio({ nombre, email, telefono, empresa, mensaje }) {
+  if (!transporter) return;
+
+  const adminEmail = process.env.ADMIN_NOTIFY_EMAIL || process.env.EMAIL_USER;
+  const from = process.env.EMAIL_FROM || `"MireTijeras" <${process.env.EMAIL_USER}>`;
+
+  try {
+    await transporter.sendMail({
+      from,
+      to: adminEmail,
+      subject: `Nueva solicitud de convenio — ${empresa}`,
+      text: [
+        `Nueva solicitud de convenio recibida:`,
+        ``,
+        `Empresa:   ${empresa}`,
+        `Contacto:  ${nombre}`,
+        `Email:     ${email}`,
+        `Teléfono:  ${telefono || '—'}`,
+        `Mensaje:   ${mensaje || '—'}`,
+      ].join('\n'),
+    });
+  } catch (err) {
+    logger.error('Error enviando email de convenio', { message: err.message });
+  }
+}
+
+module.exports = { notificarCita, notificarConvenio };

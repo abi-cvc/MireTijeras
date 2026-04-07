@@ -1,26 +1,9 @@
 // admin-citas.js: Lógica para la gestión de citas en el panel admin
-
-if (!sessionStorage.getItem('adminToken')) { window.location.href = 'admin-login.html'; }
+// Dependencias compartidas cargadas por admin-common.js
 
 document.getElementById('back-dashboard').addEventListener('click', function() {
     window.location.href = 'admin-panel.html';
 });
-
-// Detecta si está en localhost o en producción
-const API_BASE_URL =
-    window.location.hostname === "localhost"
-        ? "http://localhost:3001"
-        : "https://miretijeras.onrender.com";
-
-function getAdminToken() {
-    const token = sessionStorage.getItem('adminToken');
-    if (!token) { window.location.href = 'admin-login.html'; return null; }
-    return token;
-}
-
-function authHeaders() {
-    return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAdminToken()}` };
-}
 
 let franjas = [];
 let citas = [];
@@ -121,34 +104,6 @@ function renderFranjas() {
         list.appendChild(franjaDiv);
     });
 }
-
-// ...el listener del botón ahora solo muestra el modal (ver más abajo)...
-
-// Agregar cita desde el panel admin (prompt demo)
-document.getElementById('add-cita-btn')?.addEventListener('click', async function() {
-    const dia = prompt('Día (YYYY-MM-DD):');
-    const hora = prompt('Hora (HH:MM):');
-    const cliente = prompt('Nombre del cliente:');
-    const servicio = prompt('Servicio:');
-    if (dia && hora && cliente && servicio) {
-        try {
-            const res = await fetch(`${API_BASE_URL}/api/citas`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ dia, hora, cliente, servicio })
-            });
-            if (!res.ok) throw new Error('Error al agregar cita');
-            await fetchFranjasYCitas();
-            renderCalendar();
-            renderFranjas();
-        } catch (err) {
-            alert('Error al agregar cita');
-        }
-    }
-});
-
-renderCalendar();
-renderFranjas();
 
 (async function() {
     await fetchFranjasYCitas();
