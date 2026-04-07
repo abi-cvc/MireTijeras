@@ -63,6 +63,29 @@ router.post('/franjas', verifyAdmin, franjaValidation, validate, async (req, res
   }
 });
 
+// Editar una franja
+router.patch('/franjas/:id', verifyAdmin, franjaValidation, validate, async (req, res) => {
+  const { id } = req.params;
+  const { fecha, hora_inicio, hora_fin } = req.body;
+  try {
+    const { rows: solapadas } = await pool.query(
+      `SELECT * FROM franjas WHERE fecha = $1 AND id != $4 AND NOT ($3 <= hora_inicio OR $2 >= hora_fin)`,
+      [fecha, hora_inicio, hora_fin, id]
+    );
+    if (solapadas.length > 0) {
+      return res.status(400).json({ error: 'La franja se solapa con otra existente para ese día.' });
+    }
+    const result = await pool.query(
+      'UPDATE franjas SET fecha = $1, hora_inicio = $2, hora_fin = $3 WHERE id = $4 RETURNING *',
+      [fecha, hora_inicio, hora_fin, id]
+    );
+    if (result.rowCount === 0) return res.status(404).json({ error: 'Franja no encontrada' });
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Eliminar una franja
 router.delete('/franjas/:id', verifyAdmin, async (req, res) => {
   try {

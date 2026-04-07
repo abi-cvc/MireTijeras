@@ -6,8 +6,6 @@
     <title>Gestión de Citas | MireTijeras</title>
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/admin-citas.css">
-    <!-- FullCalendar CSS 
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.20/index.global.min.css" rel="stylesheet">-->
 </head>
 <body>
     <header class="admin-header"></header>
@@ -25,19 +23,19 @@
             <div id="calendar-admin"></div>
         </section>
         <section class="citas-franjas-section">
-            <h2>Franjas de Horario Disponibles</h2>
+            <div class="franjas-header">
+                <h2>Franjas Horarias</h2>
+                <button id="add-franja-btn">+ Nueva franja</button>
+            </div>
             <div id="franjas-list"></div>
-            <button id="add-franja-btn">Agregar Franja Horaria</button>
         </section>
     </main>
-    <!-- FullCalendar JS -->
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.20/index.global.min.js"></script>
-    <script src="../js/admin-common.js"></script>
-    <script src="../js/admin-citas.js"></script>
 
+    <!-- Modal agregar / editar franja -->
     <div id="franja-modal" class="franja-horaria">
         <div class="franja-modal-content">
-            <h3>Agregar Franja Horaria</h3>
+            <h3 id="franja-modal-title">Nueva Franja Horaria</h3>
+            <input type="hidden" id="franja-edit-id">
             <label>Día
                 <input type="date" id="franja-dia">
             </label>
@@ -47,11 +45,16 @@
             <label>Hora fin
                 <input type="time" id="franja-fin">
             </label>
+            <div id="franja-error" class="franja-error"></div>
             <div class="franja-btns">
                 <button id="franja-save-btn">Guardar</button>
-                <button id="franja-cancel-btn">Cancelar</button>
+                <button id="franja-cancel-btn" class="btn-secondary">Cancelar</button>
             </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.20/index.global.min.js"></script>
+    <script src="../js/admin-common.js"></script>
+    <script src="../js/admin-citas.js"></script>
 </body>
 </html>

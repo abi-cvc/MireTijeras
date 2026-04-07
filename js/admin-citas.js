@@ -8,7 +8,8 @@ document.getElementById('back-dashboard').addEventListener('click', function() {
 let franjas = [];
 let citas = [];
 
-// Obtener franjas y citas del backend
+// ── Datos ──────────────────────────────────────────────────────────────────
+
 async function fetchFranjasYCitas() {
     try {
         const [franjasRes, citasRes] = await Promise.all([
@@ -18,16 +19,16 @@ async function fetchFranjasYCitas() {
         franjas = await franjasRes.json();
         citas = await citasRes.json();
     } catch (err) {
-        alert('Error al obtener datos del servidor');
         franjas = [];
         citas = [];
     }
 }
 
+// ── Calendario FullCalendar ────────────────────────────────────────────────
+
 function renderCalendar() {
     const cal = document.getElementById('calendar-admin');
     cal.innerHTML = '';
-    // Construir eventos para FullCalendar
     const events = [];
     franjas.forEach(f => {
         let fecha = f.fecha;
@@ -38,21 +39,16 @@ function renderCalendar() {
             end: fecha + 'T' + f.hora_fin,
             color: '#1a9c5e',
             display: 'background',
-            rendering: 'background',
             extendedProps: { tipo: 'franja' }
         });
     });
     citas.forEach(c => {
-        // Usar campos correctos: fecha y hora
-        const fecha = c.fecha || c.dia;
-        const hora = c.hora;
-        // Ajustar a zona horaria -5 si es necesario (solo visual, no cambia datos en BD)
-        let start = fecha + 'T' + hora;
+        const fecha = (c.fecha || c.dia || '').split('T')[0];
         events.push({
-            title: `Agendado: ${c.cliente} / ${c.servicio}`,
-            start: start,
+            title: `${c.cliente} — ${c.servicio}`,
+            start: fecha + 'T' + c.hora,
             color: '#e10a64',
-            extendedProps: { tipo: 'cita' }
+            extendedProps: { tipo: 'cita', cita: c }
         });
     });
     const calendar = new FullCalendar.Calendar(cal, {
@@ -64,110 +60,211 @@ function renderCalendar() {
             center: 'title',
             right: 'dayGridMonth,timeGridWeek,timeGridDay'
         },
-        events: events,
-        eventDidMount: function(info) {
+        events,
+        eventDidMount(info) {
             if (info.event.extendedProps.tipo === 'franja') {
                 info.el.style.opacity = '0.25';
             }
         },
-        eventClick: function(info) {
+        eventClick(info) {
             if (info.event.extendedProps.tipo === 'cita') {
-                alert(info.event.title);
+                const c = info.event.extendedProps.cita;
+                alert(`Cliente: ${c.cliente}\nServicio: ${c.servicio}\nFecha: ${(c.fecha||'').split('T')[0]}  ${c.hora}\nEmail: ${c.email||'—'}\nTeléfono: ${c.telefono||'—'}`);
             }
         },
         dayHeaderFormat: { weekday: 'long' },
-        dayPopoverFormat: { day: '2-digit', month: 'long', year: 'numeric' },
         eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
         titleFormat: { year: 'numeric', month: 'long' },
-        slotLabelFormat: [
-            { hour: '2-digit', minute: '2-digit', hour12: false }
-        ],
         views: {
-            dayGridMonth: { dayMaxEventRows: 4, titleFormat: { year: 'numeric', month: 'long' } },
+            dayGridMonth: { dayMaxEventRows: 4 },
             timeGridWeek: { titleFormat: { day: '2-digit', month: 'long', year: 'numeric' } },
-            timeGridDay: { titleFormat: { day: '2-digit', month: 'long', year: 'numeric' } }
+            timeGridDay:  { titleFormat: { day: '2-digit', month: 'long', year: 'numeric' } }
         }
     });
     calendar.render();
 }
 
+// ── Lista de franjas agrupadas por fecha ───────────────────────────────────
+
 function renderFranjas() {
     const list = document.getElementById('franjas-list');
     list.innerHTML = '';
-    franjas.forEach((f, idx) => {
-        const franjaDiv = document.createElement('div');
-        franjaDiv.className = 'franja-item';
-        // Mostrar solo YYYY-MM-DD
-        let fecha = f.fecha;
-        if (fecha && fecha.includes('T')) fecha = fecha.split('T')[0];
-        franjaDiv.innerHTML = `${fecha}: ${f.hora_inicio} - ${f.hora_fin}`;
-        list.appendChild(franjaDiv);
+
+    if (!franjas.length) {
+        list.innerHTML = '<p class="franjas-empty">No hay franjas configuradas.</p>';
+        return;
+    }
+
+    // Agrupar por fecha
+    const grupos = {};
+    franjas.forEach(f => {
+        const fecha = (f.fecha || '').split('T')[0];
+        if (!grupos[fecha]) grupos[fecha] = [];
+        grupos[fecha].push(f);
+    });
+
+    const DIAS = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+    const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+    Object.keys(grupos).sort().forEach(fecha => {
+        const [y, m, d] = fecha.split('-').map(Number);
+        const dateObj = new Date(y, m - 1, d);
+        const label = `${DIAS[dateObj.getDay()]} ${d} de ${MESES[m - 1]} de ${y}`;
+
+        const grupo = document.createElement('div');
+        grupo.className = 'franjas-grupo';
+
+        const titulo = document.createElement('div');
+        titulo.className = 'franjas-grupo-titulo';
+        titulo.textContent = label;
+        grupo.appendChild(titulo);
+
+        const chips = document.createElement('div');
+        chips.className = 'franjas-chips';
+
+        grupos[fecha].forEach(f => {
+            const ocupada = citas.some(c => (c.fecha||'').split('T')[0] === fecha && c.franja_id === f.id);
+            const chip = document.createElement('div');
+            chip.className = 'franja-chip' + (ocupada ? ' franja-chip--ocupada' : '');
+
+            const hora = document.createElement('span');
+            hora.className = 'franja-chip-hora';
+            hora.textContent = `${f.hora_inicio.slice(0,5)} – ${f.hora_fin.slice(0,5)}`;
+
+            const estado = document.createElement('span');
+            estado.className = 'franja-chip-estado';
+            estado.textContent = ocupada ? 'Ocupada' : 'Disponible';
+
+            const acciones = document.createElement('div');
+            acciones.className = 'franja-chip-acciones';
+
+            const btnEditar = document.createElement('button');
+            btnEditar.className = 'franja-btn-edit';
+            btnEditar.title = 'Editar franja';
+            btnEditar.innerHTML = '&#9998;';
+            btnEditar.addEventListener('click', () => abrirModalEditar(f));
+
+            const btnEliminar = document.createElement('button');
+            btnEliminar.className = 'franja-btn-delete';
+            btnEliminar.title = 'Eliminar franja';
+            btnEliminar.innerHTML = '&#10005;';
+            btnEliminar.addEventListener('click', () => eliminarFranja(f.id, ocupada));
+
+            acciones.appendChild(btnEditar);
+            acciones.appendChild(btnEliminar);
+            chip.appendChild(hora);
+            chip.appendChild(estado);
+            chip.appendChild(acciones);
+            chips.appendChild(chip);
+        });
+
+        grupo.appendChild(chips);
+        list.appendChild(grupo);
     });
 }
+
+// ── Modal ──────────────────────────────────────────────────────────────────
+
+function abrirModal({ id = '', fecha = '', hora_inicio = '', hora_fin = '', titulo = 'Nueva Franja Horaria' } = {}) {
+    document.getElementById('franja-modal-title').textContent = titulo;
+    document.getElementById('franja-edit-id').value = id;
+    document.getElementById('franja-dia').value = fecha;
+    document.getElementById('franja-inicio').value = hora_inicio ? hora_inicio.slice(0, 5) : '';
+    document.getElementById('franja-fin').value = hora_fin ? hora_fin.slice(0, 5) : '';
+    document.getElementById('franja-error').textContent = '';
+    document.getElementById('franja-modal').style.display = 'flex';
+}
+
+function abrirModalEditar(f) {
+    const fecha = (f.fecha || '').split('T')[0];
+    abrirModal({ id: f.id, fecha, hora_inicio: f.hora_inicio, hora_fin: f.hora_fin, titulo: 'Editar Franja Horaria' });
+}
+
+function cerrarModal() {
+    document.getElementById('franja-modal').style.display = 'none';
+}
+
+// ── Eliminar franja ────────────────────────────────────────────────────────
+
+async function eliminarFranja(id, ocupada) {
+    const msg = ocupada
+        ? '⚠️ Esta franja tiene una cita agendada. Si la eliminas, la cita quedará sin franja asociada. ¿Confirmas?'
+        : '¿Eliminar esta franja horaria?';
+    if (!confirm(msg)) return;
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/franjas/${id}`, {
+            method: 'DELETE',
+            headers: authHeaders()
+        });
+        if (!res.ok) throw new Error('Error al eliminar');
+        await fetchFranjasYCitas();
+        renderCalendar();
+        renderFranjas();
+    } catch (err) {
+        alert('Error al eliminar la franja');
+    }
+}
+
+// ── Guardar (crear o editar) ───────────────────────────────────────────────
+
+async function guardarFranja() {
+    const id = document.getElementById('franja-edit-id').value;
+    const dia = document.getElementById('franja-dia').value;
+    const inicio = document.getElementById('franja-inicio').value;
+    const fin = document.getElementById('franja-fin').value;
+    const errorDiv = document.getElementById('franja-error');
+    errorDiv.textContent = '';
+
+    if (!dia || !inicio || !fin) {
+        errorDiv.textContent = 'Completa todos los campos.';
+        return;
+    }
+    if (inicio >= fin) {
+        errorDiv.textContent = 'La hora de fin debe ser mayor que la de inicio.';
+        return;
+    }
+
+    const esEdicion = !!id;
+    const url = esEdicion ? `${API_BASE_URL}/api/franjas/${id}` : `${API_BASE_URL}/api/franjas`;
+    const method = esEdicion ? 'PATCH' : 'POST';
+
+    try {
+        const res = await fetch(url, {
+            method,
+            headers: authHeaders(),
+            body: JSON.stringify({ fecha: dia, hora_inicio: inicio, hora_fin: fin })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+            errorDiv.textContent = data.error || 'Error al guardar la franja.';
+            return;
+        }
+        await fetchFranjasYCitas();
+        renderCalendar();
+        renderFranjas();
+        cerrarModal();
+    } catch (err) {
+        errorDiv.textContent = 'Error de conexión con el servidor.';
+    }
+}
+
+// ── Listeners ──────────────────────────────────────────────────────────────
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('add-franja-btn').addEventListener('click', () => abrirModal());
+    document.getElementById('franja-cancel-btn').addEventListener('click', cerrarModal);
+    document.getElementById('franja-save-btn').addEventListener('click', guardarFranja);
+
+    // Cerrar modal al hacer click fuera del contenido
+    document.getElementById('franja-modal').addEventListener('click', function(e) {
+        if (e.target === this) cerrarModal();
+    });
+});
+
+// ── Init ───────────────────────────────────────────────────────────────────
 
 (async function() {
     await fetchFranjasYCitas();
     renderCalendar();
     renderFranjas();
 })();
-
-
-// Esperar a que el DOM esté listo antes de agregar listeners del modal
-document.addEventListener('DOMContentLoaded', function() {
-    const modal = document.getElementById('franja-modal');
-    const btnOpen = document.getElementById('add-franja-btn');
-    const btnCancel = document.getElementById('franja-cancel-btn');
-    const btnSave = document.getElementById('franja-save-btn');
-    const inputDia = document.getElementById('franja-dia');
-    const inputInicio = document.getElementById('franja-inicio');
-    const inputFin = document.getElementById('franja-fin');
-
-    if (btnOpen && modal) {
-        btnOpen.addEventListener('click', function() {
-            // Limpiar campos
-            inputDia.value = '';
-            inputInicio.value = '';
-            inputFin.value = '';
-            modal.style.display = 'flex';
-        });
-    }
-    if (btnCancel && modal) {
-        btnCancel.addEventListener('click', function() {
-            modal.style.display = 'none';
-        });
-    }
-    if (btnSave && modal) {
-        btnSave.addEventListener('click', async function() {
-            const dia = inputDia.value;
-            const inicio = inputInicio.value;
-            const fin = inputFin.value;
-            if (dia && inicio && fin) {
-                // Validación frontend: no solapar
-                const solapa = franjas.some(f =>
-                    f.fecha === dia && !(fin <= f.hora_inicio || inicio >= f.hora_fin)
-                );
-                if (solapa) {
-                    alert('La franja se solapa con otra existente para ese día.');
-                    return;
-                }
-                try {
-                    const res = await fetch(`${API_BASE_URL}/api/franjas`, {
-                        method: 'POST',
-                        headers: authHeaders(),
-                        body: JSON.stringify({ fecha: dia, hora_inicio: inicio, hora_fin: fin })
-                    });
-                    if (!res.ok) {
-                        const data = await res.json().catch(() => ({}));
-                        throw new Error(data.error || 'Error al agregar franja');
-                    }
-                    await fetchFranjasYCitas();
-                    renderCalendar();
-                    renderFranjas();
-                    modal.style.display = 'none';
-                } catch (err) {
-                    alert(err.message || 'Error al agregar franja');
-                }
-            }
-        });
-    }
-});

@@ -72,9 +72,6 @@
     padding: 18px;
     margin-bottom: 18px;
 }
-#franjas-list {
-    margin-bottom: 18px;
-}
 #add-franja-btn {
     background: var(--color_3);
     color: #fff;
@@ -162,4 +159,110 @@
     display: flex;
     gap: 12px;
     margin-top: 8px;
+}
+.franja-horaria .btn-secondary {
+    background: #fff;
+    color: var(--color_3);
+    border: 1.5px solid var(--color_3);
+}
+.franja-horaria .btn-secondary:hover {
+    background: #fce4ef;
+}
+.franja-error {
+    color: #c0392b;
+    font-size: 0.9rem;
+    min-height: 18px;
+}
+
+/* ── Header de la sección de franjas ── */
+.franjas-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+.franjas-header h2 {
+    margin: 0;
+}
+.franjas-empty {
+    color: #999;
+    text-align: center;
+    padding: 24px 0;
+}
+
+/* ── Grupos por fecha ── */
+.franjas-grupo {
+    margin-bottom: 24px;
+}
+.franjas-grupo-titulo {
+    font-weight: 700;
+    color: var(--color_3);
+    font-size: 1rem;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1.5px solid #f0d0dd;
+    text-transform: capitalize;
+}
+.franjas-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+/* ── Chip de franja ── */
+.franja-chip {
+    background: #f0faf5;
+    border: 1.5px solid #1a9c5e;
+    border-radius: 10px;
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 150px;
+    position: relative;
+}
+.franja-chip--ocupada {
+    background: #fff0f5;
+    border-color: #e10a64;
+}
+.franja-chip-hora {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+.franja-chip-estado {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #1a9c5e;
+}
+.franja-chip--ocupada .franja-chip-estado {
+    color: #e10a64;
+}
+.franja-chip-acciones {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+}
+.franja-btn-edit,
+.franja-btn-delete {
+    border: none;
+    border-radius: 5px;
+    padding: 4px 9px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.franja-btn-edit {
+    background: #e8f4fd;
+    color: #2980b9;
+}
+.franja-btn-edit:hover {
+    background: #d0eaf8;
+}
+.franja-btn-delete {
+    background: #fdecea;
+    color: #c0392b;
+}
+.franja-btn-delete:hover {
+    background: #f8d7d4;
 }
