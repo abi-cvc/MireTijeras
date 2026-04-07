@@ -6,6 +6,7 @@ const verifyAdmin = require('./middleware/verifyAdmin');
 const validate = require('./middleware/validate');
 const { body } = require('express-validator');
 const rateLimit = require('express-rate-limit');
+const { notificarCita } = require('./services/emailService');
 
 const citasLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hora
@@ -93,18 +94,56 @@ const citaValidation = [
   body('hora').notEmpty().withMessage('La hora es requerida').matches(/^\d{2}:\d{2}$/).withMessage('Formato de hora inválido (HH:MM)'),
   body('cliente').trim().notEmpty().withMessage('El nombre del cliente es requerido').isLength({ max: 100 }).withMessage('El nombre no puede superar 100 caracteres'),
   body('servicio').trim().notEmpty().withMessage('El servicio es requerido').isLength({ max: 100 }).withMessage('El servicio no puede superar 100 caracteres'),
-  body('franja_id').notEmpty().withMessage('La franja horaria es requerida').isInt({ min: 1 }).withMessage('franja_id inválido'),
+  body('email').optional({ nullable: true, checkFalsy: true }).isEmail().withMessage('Email inválido').normalizeEmail(),
+  body('telefono').optional({ nullable: true, checkFalsy: true }).isLength({ max: 30 }).withMessage('Teléfono demasiado largo'),
 ];
 
 router.post('/citas', citasLimiter, citaValidation, validate, async (req, res) => {
-  const { fecha, hora, cliente, servicio, franja_id } = req.body;
+  const { fecha, hora, cliente, servicio, email, telefono } = req.body;
   try {
+    // Resolver franja_id a partir de fecha+hora si no viene en el body
+    let franja_id = req.body.franja_id || null;
+    if (!franja_id) {
+      const franjaRes = await pool.query(
+        `SELECT id FROM franjas WHERE fecha = $1 AND hora_inicio <= $2 AND hora_fin > $2 AND disponible = TRUE`,
+        [fecha, hora]
+      );
+      franja_id = franjaRes.rows[0]?.id || null;
+    }
+
     const result = await pool.query(
-      'INSERT INTO citas (fecha, hora, cliente, servicio, franja_id) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [fecha, hora, cliente, servicio, franja_id]
+      'INSERT INTO citas (fecha, hora, cliente, servicio, franja_id, email, telefono) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      [fecha, hora, cliente, servicio, franja_id, email || null, telefono || null]
     );
-    await pool.query('UPDATE franjas SET disponible = FALSE WHERE id = $1', [franja_id]);
+
+    if (franja_id) {
+      await pool.query('UPDATE franjas SET disponible = FALSE WHERE id = $1', [franja_id]);
+    }
+
+    // Notificación por email (no bloquea la respuesta)
+    notificarCita({ cliente, email, telefono, fecha, hora, servicio });
+
     res.status(201).json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Cancelar una cita (libera la franja asociada)
+router.delete('/citas/:id', verifyAdmin, async (req, res) => {
+  const { id } = req.params;
+  try {
+    const { rows } = await pool.query('SELECT franja_id FROM citas WHERE id = $1', [id]);
+    if (!rows.length) return res.status(404).json({ error: 'Cita no encontrada' });
+
+    const franja_id = rows[0].franja_id;
+    await pool.query('DELETE FROM citas WHERE id = $1', [id]);
+
+    if (franja_id) {
+      await pool.query('UPDATE franjas SET disponible = TRUE WHERE id = $1', [franja_id]);
+    }
+
+    res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

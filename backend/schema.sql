@@ -25,7 +25,9 @@ CREATE TABLE IF NOT EXISTS citas (
     hora TIME NOT NULL,
     cliente VARCHAR(100) NOT NULL,
     servicio VARCHAR(100) NOT NULL,
-    franja_id INTEGER REFERENCES franjas(id) ON DELETE SET NULL
+    franja_id INTEGER REFERENCES franjas(id) ON DELETE SET NULL,
+    email VARCHAR(100),
+    telefono VARCHAR(30)
 );
 -- Tabla de sugerencias
 CREATE TABLE IF NOT EXISTS suggestions (

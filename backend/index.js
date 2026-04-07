@@ -1,5 +1,6 @@
-// Inicializar tabla suggestions y crear índices si no existen
+// Inicializar tablas, migraciones e índices al arrancar
 const pool = require('./db');
+const logger = require('./logger');
 pool.query(`CREATE TABLE IF NOT EXISTS suggestions (
   id SERIAL PRIMARY KEY,
   fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -8,13 +9,15 @@ pool.query(`CREATE TABLE IF NOT EXISTS suggestions (
 )`).then(() =>
   pool.query(`ALTER TABLE suggestions ADD COLUMN IF NOT EXISTS estado VARCHAR(30) DEFAULT 'por revisar'`)
 ).then(() => Promise.all([
+  pool.query(`ALTER TABLE citas ADD COLUMN IF NOT EXISTS email VARCHAR(100)`),
+  pool.query(`ALTER TABLE citas ADD COLUMN IF NOT EXISTS telefono VARCHAR(30)`),
   pool.query(`CREATE INDEX IF NOT EXISTS idx_reviews_fecha ON reviews(fecha DESC)`),
   pool.query(`CREATE INDEX IF NOT EXISTS idx_reviews_visible ON reviews(visible)`),
   pool.query(`CREATE INDEX IF NOT EXISTS idx_franjas_fecha ON franjas(fecha)`),
   pool.query(`CREATE INDEX IF NOT EXISTS idx_franjas_disponible ON franjas(disponible)`),
   pool.query(`CREATE INDEX IF NOT EXISTS idx_citas_fecha ON citas(fecha)`),
   pool.query(`CREATE INDEX IF NOT EXISTS idx_citas_franja_id ON citas(franja_id)`),
-])).catch(err => console.error('Error en migración inicial:', err));
+])).catch(err => logger.error('Error en migración inicial', { message: err.message }));
 
 // index.js - Servidor Express principal
 require('dotenv').config();
@@ -138,7 +141,7 @@ app.post('/api/admin/login',
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-  console.log(`Servidor backend escuchando en puerto ${PORT}`);
+  logger.info(`Servidor backend escuchando en puerto ${PORT}`);
 });
 
 app.post('/api/google-login', async (req, res) => {
