@@ -1,4 +1,4 @@
-// Inicializar tabla suggestions (crea si no existe, agrega columna estado si falta)
+// Inicializar tabla suggestions y crear índices si no existen
 const pool = require('./db');
 pool.query(`CREATE TABLE IF NOT EXISTS suggestions (
   id SERIAL PRIMARY KEY,
@@ -7,12 +7,20 @@ pool.query(`CREATE TABLE IF NOT EXISTS suggestions (
   estado VARCHAR(30) DEFAULT 'por revisar'
 )`).then(() =>
   pool.query(`ALTER TABLE suggestions ADD COLUMN IF NOT EXISTS estado VARCHAR(30) DEFAULT 'por revisar'`)
-).catch(err => console.error('Error inicializando tabla suggestions:', err));
+).then(() => Promise.all([
+  pool.query(`CREATE INDEX IF NOT EXISTS idx_reviews_fecha ON reviews(fecha DESC)`),
+  pool.query(`CREATE INDEX IF NOT EXISTS idx_reviews_visible ON reviews(visible)`),
+  pool.query(`CREATE INDEX IF NOT EXISTS idx_franjas_fecha ON franjas(fecha)`),
+  pool.query(`CREATE INDEX IF NOT EXISTS idx_franjas_disponible ON franjas(disponible)`),
+  pool.query(`CREATE INDEX IF NOT EXISTS idx_citas_fecha ON citas(fecha)`),
+  pool.query(`CREATE INDEX IF NOT EXISTS idx_citas_franja_id ON citas(franja_id)`),
+])).catch(err => console.error('Error en migración inicial:', err));
 
 // index.js - Servidor Express principal
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const rateLimit = require('express-rate-limit');
 const app = express();
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS
@@ -23,12 +31,23 @@ const { OAuth2Client } = require('google-auth-library');
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const jwt = require('jsonwebtoken');
 const verifyAdmin = require('./middleware/verifyAdmin');
+const validate = require('./middleware/validate');
+const { body } = require('express-validator');
 
 app.use(cors({
   origin: allowedOrigins,
   credentials: true, // si usas cookies o autenticación
 }));
 app.use(express.json());
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 10,
+  message: { error: 'Demasiados intentos de inicio de sesión. Intenta de nuevo en 15 minutos.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 
 
 // Rutas de citas
@@ -40,7 +59,22 @@ app.use('/api/reviews', require('./reviews.routes'));
 
 // Ruta para sugerencias
 app.get('/api/suggestions', verifyAdmin, async (req, res) => {
+  const page = parseInt(req.query.page) || null;
+  const limit = Math.min(parseInt(req.query.limit) || 20, 100);
   try {
+    if (page) {
+      const offset = (page - 1) * limit;
+      const [dataRes, countRes] = await Promise.all([
+        pool.query('SELECT * FROM suggestions ORDER BY fecha DESC LIMIT $1 OFFSET $2', [limit, offset]),
+        pool.query('SELECT COUNT(*) FROM suggestions'),
+      ]);
+      return res.json({
+        data: dataRes.rows,
+        total: parseInt(countRes.rows[0].count),
+        page,
+        totalPages: Math.ceil(parseInt(countRes.rows[0].count) / limit),
+      });
+    }
     const result = await pool.query('SELECT * FROM suggestions ORDER BY fecha DESC');
     res.json(result.rows);
   } catch (err) {
@@ -48,21 +82,22 @@ app.get('/api/suggestions', verifyAdmin, async (req, res) => {
   }
 });
 
-
-app.post('/api/suggestions', async (req, res) => {
-  const { texto } = req.body;
-  if (!texto) return res.status(400).json({ error: 'Texto requerido' });
-  try {
-    const result = await pool.query(
-      'INSERT INTO suggestions (texto) VALUES ($1) RETURNING *',
-      [texto]
-    );
-    res.status(201).json(result.rows[0]);
-  } catch (err) {
-    console.error('Error al guardar sugerencia:', err);
-    res.status(500).json({ error: 'Error al guardar sugerencia' });
+app.post('/api/suggestions',
+  body('texto').trim().notEmpty().withMessage('El texto es requerido'),
+  validate,
+  async (req, res) => {
+    const { texto } = req.body;
+    try {
+      const result = await pool.query(
+        'INSERT INTO suggestions (texto) VALUES ($1) RETURNING *',
+        [texto]
+      );
+      res.status(201).json(result.rows[0]);
+    } catch (err) {
+      res.status(500).json({ error: 'Error al guardar sugerencia' });
+    }
   }
-});
+);
 
 // Actualizar estado de una sugerencia
 app.put('/api/suggestions/:id', verifyAdmin, async (req, res) => {
@@ -84,16 +119,22 @@ app.put('/api/suggestions/:id', verifyAdmin, async (req, res) => {
 // Ruta para login de administrador
 const AuthService = require('./services/AuthService');
 const authService = new AuthService();
-app.post('/api/admin/login', async (req, res) => {
-  const { email, password } = req.body;
-  const isValid = await authService.login(email, password);
-  if (isValid) {
-    const token = jwt.sign({ role: 'admin' }, process.env.JWT_SECRET, { expiresIn: '8h' });
-    res.status(200).json({ success: true, token });
-  } else {
-    res.status(401).json({ success: false, message: 'Credenciales inválidas' });
+app.post('/api/admin/login',
+  loginLimiter,
+  body('email').trim().notEmpty().withMessage('Email requerido').isEmail().withMessage('Email inválido'),
+  body('password').notEmpty().withMessage('Contraseña requerida'),
+  validate,
+  async (req, res) => {
+    const { email, password } = req.body;
+    const isValid = await authService.login(email, password);
+    if (isValid) {
+      const token = jwt.sign({ role: 'admin' }, process.env.JWT_SECRET, { expiresIn: '8h' });
+      res.status(200).json({ success: true, token });
+    } else {
+      res.status(401).json({ success: false, message: 'Credenciales inválidas' });
+    }
   }
-});
+);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {

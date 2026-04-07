@@ -46,3 +46,11 @@ CREATE TABLE IF NOT EXISTS convenios (
     estado VARCHAR(30) DEFAULT 'pendiente',
     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Índices para consultas frecuentes
+CREATE INDEX IF NOT EXISTS idx_reviews_fecha ON reviews(fecha DESC);
+CREATE INDEX IF NOT EXISTS idx_reviews_visible ON reviews(visible);
+CREATE INDEX IF NOT EXISTS idx_franjas_fecha ON franjas(fecha);
+CREATE INDEX IF NOT EXISTS idx_franjas_disponible ON franjas(disponible);
+CREATE INDEX IF NOT EXISTS idx_citas_fecha ON citas(fecha);
+CREATE INDEX IF NOT EXISTS idx_citas_franja_id ON citas(franja_id);
