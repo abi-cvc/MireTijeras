@@ -119,7 +119,7 @@ MireTijeras/
 
 ---
 
-## Variables de entorno (Render)
+<!--## Variables de entorno (Render)
 
 ```env
 # Base de datos (Neon)
@@ -148,7 +148,7 @@ EMAIL_PASS=
 EMAIL_FROM=
 ADMIN_NOTIFY_EMAIL=
 ```
-
+-->
 ---
 
 ## Setup local
